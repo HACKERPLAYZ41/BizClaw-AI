@@ -23,6 +23,10 @@ Client-specific configuration objects (including client-submitted API keys) are 
     *   If a client hits their message quota or passes their expiration date, the bot automatically pauses replies and requests the client to renew.
 *   **Multi-Instance WhatsApp (Baileys):** Runs multiple parallel WhatsApp sockets concurrently inside a single Node.js process. Each client's authentication session is isolated under `auth_info/client_<username>/`.
 *   **Sandboxed Sockets:** WebSocket rooms sandbox clients so they only receive updates and CRM leads related strictly to their own accounts.
+*   **50 Business Niche Templates:** One-click pre-fill prompts for 50 diverse business niches grouped logically (Tech & Dev, Food & Dining, Retail, Home Services, Agency, and Education) with built-in token-saving brevity rules.
+*   **CRM Live Chat Inspector:** Access a real-time read-only chat timeline between the AI chatbot and the lead, styled as a premium WhatsApp mockup UI.
+*   **Twilio Outbound Voice Alerts:** Seamless zero-dependency integration to call the owner on their mobile phone via Twilio Text-to-Speech (TTS) when customers trigger support escalations.
+*   **Public IP Auto-resolution:** Automatically resolves the container's public VPS IP on start, printing a copy-pasteable dashboard URL.
 
 ---
 
@@ -34,7 +38,7 @@ Boot the server once to automatically generate the `config.yml` configuration:
 npm install
 npm start
 ```
-Edit the generated `config.yml` file to set your custom admin username and password:
+Edit the generated `config.yml` file to set your custom admin credentials and (optionally) Twilio voice settings:
 ```yaml
 server:
   port: 3000
@@ -45,10 +49,17 @@ server:
 ai:
   global_gemini_api_key: ""                      # (Optional) Fallback key if clients do not have their own
   global_openai_api_key: ""                      # (Optional) Fallback key if clients do not have their own
+
+twilio:
+  enabled: false                                 # Set to true to enable outbound call alerts
+  account_sid: ""                                # Twilio Account SID
+  auth_token: ""                                 # Twilio Auth Token
+  twilio_number: ""                              # Outbound Twilio phone number (+1xx)
+  owner_number: ""                               # Your personal phone number to receive the call (+91xx)
 ```
 
 ### 2. Generate Licenses (As Owner)
-1. Open your browser and go to `http://localhost:3000`.
+1. Open your browser and go to the dashboard URL printed on server boot (e.g. `http://46.247.108.127:3000`).
 2. Enter your custom `admin_username` and `admin_password` (defined in your `config.yml`).
 3. Under the **Licenses** tab, select the number of days (e.g., `30 Days`) and message limit (e.g., `500 Messages`), then click **Create License Key**.
 4. Copy the generated key (e.g., `ABCD-EFGH-IJKL`).
@@ -61,7 +72,7 @@ ai:
 ### 4. Client Operations
 1. The client logs in with their newly created username.
 2. Under the **WhatsApp Status** page, they scan the pairing QR code to link their WhatsApp account.
-3. Under **AI Settings**, they configure their business FAQs, select pre-written AI templates (Retail, Restaurant, or Salon/Service), and (optionally) input their own Google Gemini or OpenAI API keys.
+3. Under **AI Settings**, they select their business category from the list of **50 Niche Templates** (e.g. Minecraft Hosting, Sweet Shop, Gym, Web Dev, etc.) and save their configuration.
 
 ---
 
@@ -70,5 +81,6 @@ ai:
 *   [`database.json`](file:///database.json) - Stores all user accounts, active licenses registry, CRM leads, and message histories.
 *   [`auth_info/client_<username>/`](file:///auth_info/) - Sandboxed folders containing the WhatsApp session keys for each client.
 *   [`whatsapp-handler.js`](file:///whatsapp-handler.js) - Manages the pool of active WhatsApp sockets and quota updates.
+*   [`twilio-service.js`](file:///twilio-service.js) - Handles outbound Twilio REST API voice calls.
 *   [`server.js`](file:///server.js) - Role authorization check and REST API endpoints.
 *   [`public/`](file:///public/) - Glassmorphic SPA frontend dashboard.
