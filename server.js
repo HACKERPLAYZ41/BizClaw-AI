@@ -4,6 +4,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
+import os from 'os';
 
 import { getConfig, loadConfig } from './config-manager.js';
 import { 
@@ -21,7 +22,8 @@ import {
   getLicense,
   useLicense,
   getUserConfig,
-  updateUserConfig
+  updateUserConfig,
+  getChatHistory
 } from './database.js';
 import { 
   initWhatsApp, 
@@ -278,6 +280,12 @@ app.delete('/api/client/leads/:phone', authMiddleware, (req, res) => {
   }
 });
 
+app.get('/api/client/chat-history/:phone', authMiddleware, (req, res) => {
+  const { phone } = req.params;
+  const history = getChatHistory(req.user.username, phone);
+  res.json(history);
+});
+
 app.post('/api/client/logout-whatsapp', authMiddleware, async (req, res) => {
   try {
     await logoutClientWhatsApp(req.user.username);
@@ -355,7 +363,18 @@ initWhatsApp(io);
 // Start server
 const port = process.env.PORT || process.env.SERVER_PORT || getConfig().server?.port || 3000;
 server.listen(port, () => {
-  console.log(`[Server] Multi-tenant dashboard running on port ${port}`);
+  const interfaces = os.networkInterfaces();
+  const addresses = [];
+  for (const k in interfaces) {
+    for (const k2 in interfaces[k]) {
+      const address = interfaces[k][k2];
+      if (address.family === 'IPv4' && !address.internal) {
+        addresses.push(address.address);
+      }
+    }
+  }
+  const ipList = addresses.length > 0 ? addresses.join(', ') : 'localhost';
+  console.log(`[Server] Multi-tenant dashboard running on port ${port} (IP: ${ipList})`);
 });
 
 // Handle safe shutdowns

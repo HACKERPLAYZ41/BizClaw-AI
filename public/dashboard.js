@@ -1,6 +1,7 @@
 let socket = null;
 let currentToken = localStorage.getItem('dashboard_token');
 let currentRole = localStorage.getItem('dashboard_role');
+let currentLeads = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   setupAuthForms();
@@ -512,6 +513,7 @@ function updateClientQuotas(data) {
 
 // Leads CRM Table rendering
 function renderLeadsTable(leads) {
+  currentLeads = leads;
   const tableBody = document.getElementById('leads-table-body');
   const totalLeadsSpan = document.getElementById('stat-total-leads');
   const urgentLeadsSpan = document.getElementById('stat-urgent-leads');
@@ -562,13 +564,16 @@ function renderLeadsTable(leads) {
     }
 
     actionsHtml += `
+      <button onclick="openChatHistory('${lead.phone}')" class="px-2.5 py-1 bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white font-bold text-xs rounded transition mr-2" title="View Chat History">
+        View Chat
+      </button>
       <select onchange="updateLeadStatusRest('${lead.phone}', this.value)" class="glass-input px-2 py-1 rounded text-xs mr-2">
         <option value="Active" ${lead.status === 'Active' ? 'selected' : ''}>Active</option>
         <option value="Urgent" ${lead.status === 'Urgent' ? 'selected' : ''}>Urgent</option>
         <option value="Resolved" ${lead.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
       </select>
       <button onclick="deleteLeadRest('${lead.phone}')" class="p-1 text-gray-500 hover:text-red-400 transition" title="Delete lead record">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
       </button>
@@ -904,3 +909,67 @@ window.applyPromptTemplate = function(type) {
   }
 };
 
+window.openChatHistory = async function(phone) {
+  const lead = currentLeads.find(l => l.phone === phone);
+  const name = lead ? lead.name : 'Customer';
+  
+  const title = document.getElementById('chat-modal-title');
+  const body = document.getElementById('chat-modal-body');
+  const modal = document.getElementById('chat-modal');
+  
+  title.innerText = `Chat with ${name} (${phone})`;
+  body.innerHTML = '<div class="flex items-center justify-center py-12"><div class="w-8 h-8 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div></div>';
+  modal.classList.remove('hidden');
+  
+  try {
+    const res = await fetch(`/api/client/chat-history/${phone}`, {
+      headers: { 'Authorization': `Bearer ${currentToken}` }
+    });
+    if (!res.ok) throw new Error();
+    const history = await res.json();
+    
+    body.innerHTML = '';
+    if (history.length === 0) {
+      body.innerHTML = '<div class="text-center text-gray-500 py-12">No messages recorded in this session.</div>';
+      return;
+    }
+    
+    history.forEach(msg => {
+      const bubble = document.createElement('div');
+      const formattedTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      const isClient = msg.role === 'assistant' || msg.role === 'system';
+      
+      if (isClient) {
+        bubble.className = "flex flex-col items-end self-end max-w-[80%] my-1";
+        bubble.innerHTML = `
+          <span class="text-[10px] text-gray-500 mb-1">AI Bot (${formattedTime})</span>
+          <div class="px-4 py-2.5 rounded-2xl bg-purple-600/80 text-white rounded-tr-none text-sm leading-relaxed whitespace-pre-wrap border border-purple-500/10">
+            ${escapeHtml(msg.content)}
+          </div>
+        `;
+      } else {
+        bubble.className = "flex flex-col items-start self-start max-w-[80%] my-1";
+        bubble.innerHTML = `
+          <span class="text-[10px] text-gray-500 mb-1">${escapeHtml(name)} (${formattedTime})</span>
+          <div class="px-4 py-2.5 rounded-2xl bg-gray-800 text-gray-200 rounded-tl-none text-sm leading-relaxed whitespace-pre-wrap border border-white/5">
+            ${escapeHtml(msg.content)}
+          </div>
+        `;
+      }
+      body.appendChild(bubble);
+    });
+    
+    // Auto scroll to bottom
+    setTimeout(() => {
+      body.scrollTop = body.scrollHeight;
+    }, 50);
+  } catch (err) {
+    body.innerHTML = '<div class="text-center text-red-400 py-12">Failed to load chat history.</div>';
+  }
+};
+
+window.closeChatModal = function() {
+  const modal = document.getElementById('chat-modal');
+  modal.classList.add('hidden');
+};

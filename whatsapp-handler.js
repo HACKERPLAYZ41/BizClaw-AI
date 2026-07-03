@@ -18,7 +18,8 @@ import {
   getLeads,
   getUsers,
   getUser,
-  incrementUserMessageCount
+  incrementUserMessageCount,
+  getUserConfig
 } from './database.js';
 
 const logger = pino({ level: 'silent' });
