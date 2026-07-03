@@ -9,7 +9,13 @@ This platform allows an **Owner (Admin)** to sell WhatsApp AI chatbots to **Clie
 ## 🔒 Security & Secrets Protection
 
 To prevent API credential leakage, all sensitive global settings are stored in `config.yml` (which is excluded from Git via `.gitignore`).
-Client-specific configuration objects (including client-submitted API keys) are stored securely inside the sandboxed database `database.json`, which is also ignored by Git.
+Client-specific configuration objects (including client-submitted API keys and client-isolated Twilio credentials) are stored securely inside the sandboxed database `database.json`, which is also ignored by Git.
+
+### 🛡️ CodeQL Security Hardening:
+*   **Brute-Force & API Rate Limiting:** Custom lightweight in-memory rate-limiter middleware protects auth endpoints and client/admin API routes against scanning exploits.
+*   **Secure PBKDF2 Password Hashing:** Replaced weak hashing algorithms with `crypto.pbkdf2Sync` (10,000 iterations, SHA-256). An automatic migration layer updates legacy client hashes to PBKDF2 format seamlessly upon their next successful login.
+*   **Prototype Pollution Defense:** Strict key sanitation intercepts all object merges and mutations to block prototype property manipulation (dashes, `__proto__`, etc.).
+*   **Path Traversal Prevention:** Sanitizes username variables in all directory creations, resumes, and deletions in the WhatsApp session folders.
 
 ---
 
@@ -21,6 +27,10 @@ Client-specific configuration objects (including client-submitted API keys) are 
 *   **License Expiration & Limits:**
     *   Administrator sets active message quotas (e.g., `500 messages`) and duration (e.g., `30 days`) per license.
     *   If a client hits their message quota or passes their expiration date, the bot automatically pauses replies and requests the client to renew.
+*   **Client-Isolated Twilio Outbound Calling:**
+    *   In addition to global Twilio settings, clients/merchants can configure their own isolated Twilio credentials (Account SID, Auth Token, Twilio Number, Owner mobile number) inside their **AI Settings** panel. Call triggers use the specific merchant's account for isolated billing.
+*   **Interactive Help Guide Tab:**
+    *   An interactive step-by-step documentation panel is embedded directly inside the client dashboard (Help Guide tab) detailing WhatsApp pairing, custom prompts token control, Twilio setups, and CRM/Chat Inspector features.
 *   **Multi-Instance WhatsApp (Baileys):** Runs multiple parallel WhatsApp sockets concurrently inside a single Node.js process. Each client's authentication session is isolated under `auth_info/client_<username>/`.
 *   **Sandboxed Sockets:** WebSocket rooms sandbox clients so they only receive updates and CRM leads related strictly to their own accounts.
 *   **50 Business Niche Templates:** One-click pre-fill prompts for 50 diverse business niches grouped logically (Tech & Dev, Food & Dining, Retail, Home Services, Agency, and Education) with built-in token-saving brevity rules.
