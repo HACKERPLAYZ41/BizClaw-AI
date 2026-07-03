@@ -152,19 +152,17 @@ function mountDashboard(token, role) {
     roleBadge.innerText = "Client Dashboard";
     roleBadge.className = "text-[10px] text-emerald-400 uppercase font-bold tracking-wider";
 
-    // Setup client headers tabs
+    // Setup client headers tabs (Console removed for client simplicity)
     const clientTabs = `
       <button data-tab="status" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-white bg-purple-600/20 border border-purple-500/20">WhatsApp Status</button>
       <button data-tab="config" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-white/5">AI Settings</button>
       <button data-tab="leads" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-white/5">CRM Leads</button>
-      <button data-tab="console" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-white/5">Console</button>
     `;
     navTabs.innerHTML = clientTabs;
     navTabsMobile.innerHTML = `
       <button data-tab="status" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-white bg-purple-600/20 border border-purple-500/20">WhatsApp</button>
       <button data-tab="config" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400">AI Config</button>
       <button data-tab="leads" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400">CRM Leads</button>
-      <button data-tab="console" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400">Console</button>
     `;
 
     document.getElementById('tab-status').classList.remove('hidden');
@@ -878,3 +876,23 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+// --- Dynamic AI Prompts Templates helper ---
+window.applyPromptTemplate = function(type) {
+  const promptBox = document.getElementById('config-agent-prompt');
+  const agentName = document.getElementById('config-agent-name').value.trim() || 'Our Store';
+  
+  const templates = {
+    retail: `You are an AI Assistant for ${agentName}.\n\nBusiness Info:\n- Products: [List products here]\n- Address: [Insert address]\n- Open Hours: 9 AM - 8 PM\n\nInstructions:\n- Answer customer queries politely and concisely.\n- Help them check product availability and pricing.\n- Escalate to a human if they ask for custom quotes.`,
+    
+    restaurant: `You are an AI Assistant for ${agentName}.\n\nBusiness Info:\n- Menu: [Insert menu details here]\n- Table Booking: We accept reservations via WhatsApp.\n- Open Hours: 11 AM - 11 PM\n\nInstructions:\n- Be welcoming and friendly.\n- Answer questions about dishes, allergens, and availability.\n- Help them book a table by asking for name, date, time, and number of guests.`,
+    
+    service: `You are an AI Assistant for ${agentName}.\n\nBusiness Info:\n- Services: [List services, e.g., Haircut, Salon treatments, Consultations]\n- Appointments: We book appointments directly.\n- Address: [Insert address]\n\nInstructions:\n- Guide clients through our list of services and prices.\n- Help them schedule bookings by asking for their name, preferred service, date, and time.\n- Be highly professional.`
+  };
+
+  if (templates[type]) {
+    promptBox.value = templates[type];
+    showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} template loaded! Review and save.`);
+  }
+};
+
