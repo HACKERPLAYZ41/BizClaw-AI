@@ -63,7 +63,7 @@ const DEFAULT_CLIENT_CONFIG = {
   },
   business_agent: {
     name: 'ShopAssistant AI',
-    system_prompt: 'You are a helpful customer support agent for our store. Answer FAQs politely and succinctly.',
+    system_prompt: 'You are a helpful customer support agent for our store. Answer FAQs politely and succinctly. Automatically detect the user\'s language and respond in that same language or in Hinglish (Romanized Hindi) if appropriate.',
     auto_lead_capture: true,
     escalation_keywords: ['human', 'manager', 'complaint', 'refund', 'support']
   },
