@@ -36,7 +36,7 @@ import {
   reloadConsoleStream 
 } from './pterodactyl-console.js';
 
-// Setup environment configs
+// Setup config
 loadConfig();
 
 const app = express();
@@ -51,11 +51,11 @@ const io = new SocketIOServer(server, {
 app.use(express.json());
 app.use(express.static(path.resolve(process.cwd(), 'public')));
 
-const JWT_SECRET = getConfig().server.jwt_secret;
+const JWT_SECRET = getConfig().server?.jwt_secret || 'merchant_session_signature_secure_19385';
 
-// Custom Lightweight Session Token Utility (Zero external dependencies)
+// Custom Session Token Utility
 function generateToken(payload) {
-  const data = JSON.stringify({ ...payload, exp: Date.now() + 24 * 60 * 60 * 1000 }); // 24h Token Expiry
+  const data = JSON.stringify({ ...payload, exp: Date.now() + 24 * 60 * 60 * 1000 }); // 24h Expiry
   const hmac = crypto.createHmac('sha256', JWT_SECRET);
   hmac.update(data);
   const signature = hmac.digest('hex');
@@ -102,11 +102,13 @@ function adminOnly(req, res, next) {
 // Authentication & Registration REST APIs
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
-  const masterPass = getConfig().server.dashboard_password;
+  const config = getConfig();
+  const adminUser = config.server?.admin_username || 'utkarsh';
+  const adminPass = config.server?.admin_password || '2402';
 
   // 1. Admin login override
-  if (username.toLowerCase() === 'admin' && password === masterPass) {
-    const token = generateToken({ username: 'admin', role: 'admin' });
+  if (username.toLowerCase() === adminUser.toLowerCase() && password === adminPass) {
+    const token = generateToken({ username: adminUser, role: 'admin' });
     return res.json({ success: true, token, role: 'admin' });
   }
 
@@ -331,7 +333,6 @@ io.on('connection', (socket) => {
 
       const result = await sendConsoleCommand(username, cmd.trim());
       if (!result.success) {
-        // Emit error line back to client UI only
         socket.emit('console_line', `[Console Error] ${result.reason}`);
       }
     });
@@ -352,7 +353,7 @@ setupConsoleLogger(io);
 initWhatsApp(io);
 
 // Start server
-const port = process.env.PORT || getConfig().server.port || 3000;
+const port = process.env.PORT || getConfig().server?.port || 3000;
 server.listen(port, () => {
   console.log(`[Server] Multi-tenant dashboard running on port ${port}`);
 });
