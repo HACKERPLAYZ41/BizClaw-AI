@@ -24,3 +24,6 @@ logs/
 # System files
 .DS_Store
 Thumbs.db
+
+# Instagram social media assets
+instagram_slides/
