@@ -26,6 +26,11 @@ import {
 const logger = pino({ level: 'silent' });
 const BASE_AUTH_DIR = path.resolve(process.cwd(), 'auth_info');
 
+function sanitizeUsername(username) {
+  if (!username) return 'default_client';
+  return String(username).replace(/[^a-zA-Z0-9_-]/g, '');
+}
+
 // Pools to keep track of active sockets and pairing status
 const clientSockets = new Map(); // username -> WASocket
 const clientStates = new Map();  // username -> { status, qr }
@@ -47,7 +52,8 @@ export async function initWhatsApp(io) {
 
   for (const client of clients) {
     // Only auto-resume if they have existing session files to avoid unnecessary sockets for new users
-    const clientAuthDir = path.join(BASE_AUTH_DIR, `client_${client.username}`);
+    const safeUsername = sanitizeUsername(client.username);
+    const clientAuthDir = path.join(BASE_AUTH_DIR, `client_${safeUsername}`);
     if (fs.existsSync(clientAuthDir)) {
       console.log(`[WhatsApp] Auto-resuming WhatsApp session for client: ${client.username}`);
       startClientWhatsApp(client.username);
@@ -62,7 +68,8 @@ export async function startClientWhatsApp(username) {
     return getClientWhatsAppStatus(username);
   }
 
-  const clientAuthDir = path.join(BASE_AUTH_DIR, `client_${username}`);
+  const safeUsername = sanitizeUsername(username);
+  const clientAuthDir = path.join(BASE_AUTH_DIR, `client_${safeUsername}`);
   clientStates.set(username, { status: 'disconnected', qr: null });
 
   try {
@@ -97,10 +104,10 @@ export async function startClientWhatsApp(username) {
         clientState.status = 'pairing';
         try {
           clientState.qr = await QRCode.toDataURL(qr);
-          console.log(`[WhatsApp] [${username}] QR generated. Awaiting web pairing scan.`);
+          console.log('[WhatsApp] [%s] QR generated. Awaiting web pairing scan.', username);
           broadcastClientStatus(username);
         } catch (err) {
-          console.error(`[WhatsApp] [${username}] Failed to generate QR Base64:`, err);
+          console.error('[WhatsApp] [%s] Failed to generate QR Base64: %s', username, err.message || err);
         }
       }
 
@@ -109,7 +116,7 @@ export async function startClientWhatsApp(username) {
         const statusCode = lastDisconnect?.error?.output?.statusCode;
         const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-        console.log(`[WhatsApp] [${username}] Connection closed (Reason: ${statusCode}). Reconnecting: ${shouldReconnect}`);
+        console.log('[WhatsApp] [%s] Connection closed (Reason: %s). Reconnecting: %s', username, statusCode, shouldReconnect);
         
         if (shouldReconnect) {
           clientState.status = 'disconnected';
@@ -125,14 +132,14 @@ export async function startClientWhatsApp(username) {
           try {
             fs.rmSync(clientAuthDir, { recursive: true, force: true });
           } catch (e) {}
-          console.log(`[WhatsApp] [${username}] Session logged out. Auth directory cleared.`);
+          console.log('[WhatsApp] [%s] Session logged out. Auth directory cleared.', username);
         }
       }
 
       if (connection === 'open') {
         clientState.status = 'connected';
         clientState.qr = null;
-        console.log(`[WhatsApp] [${username}] Connected successfully! Logged in as: ${sock.user.name || sock.user.id}`);
+        console.log('[WhatsApp] [%s] Connected successfully! Logged in as: %s', username, sock.user.name || sock.user.id);
         broadcastClientStatus(username);
       }
 
@@ -205,7 +212,7 @@ export async function startClientWhatsApp(username) {
 
           if (!text.trim()) continue;
 
-          console.log(`[WhatsApp] [${username}] Message from ${pushName} (${phone}): "${text}"`);
+          console.log('[WhatsApp] [%s] Message from %s (%s): "%s"', username, pushName, phone, text);
           
           // Increment message count on standard text messages
           incrementUserMessageCount(username);
@@ -217,7 +224,7 @@ export async function startClientWhatsApp(username) {
     });
 
   } catch (err) {
-    console.error(`[WhatsApp] [${username}] Core startup failure:`, err);
+    console.error('[WhatsApp] [%s] Core startup failure: %s', username, err.message || err);
     clientStates.set(username, { status: 'disconnected', qr: null });
     broadcastClientStatus(username);
   }
@@ -230,7 +237,7 @@ async function handleClientIncomingMessage(username, phone, pushName, text, remo
   // Check support escalation lock
   const escalation = getEscalation(username, phone);
   if (escalation) {
-    console.log(`[WhatsApp] [${username}] Chat thread ${phone} escalated. Suppressing AI.`);
+    console.log('[WhatsApp] [%s] Chat thread %s escalated. Suppressing AI.', username, phone);
     return;
   }
 
@@ -298,7 +305,7 @@ async function handleClientIncomingMessage(username, phone, pushName, text, remo
 
 // Log out client and wipe credentials
 export async function logoutClientWhatsApp(username) {
-  console.log(`[WhatsApp] [${username}] Requesting session logout...`);
+  console.log('[WhatsApp] [%s] Requesting session logout...', username);
   const sock = clientSockets.get(username);
   
   if (sock) {
@@ -311,11 +318,12 @@ export async function logoutClientWhatsApp(username) {
     clientSockets.delete(username);
   }
 
-  const clientAuthDir = path.join(BASE_AUTH_DIR, `client_${username}`);
+  const safeUsername = sanitizeUsername(username);
+  const clientAuthDir = path.join(BASE_AUTH_DIR, `client_${safeUsername}`);
   try {
     if (fs.existsSync(clientAuthDir)) {
       fs.rmSync(clientAuthDir, { recursive: true, force: true });
-      console.log(`[WhatsApp] [${username}] Auth directory deleted.`);
+      console.log('[WhatsApp] [%s] Auth directory deleted.', username);
     }
   } catch (e) {}
 

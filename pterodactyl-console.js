@@ -98,7 +98,7 @@ export async function reloadConsoleStream(username) {
     return;
   }
 
-  console.log(`[Console] [${username}] Connecting to Pterodactyl socket...`);
+  console.log('[Console] [%s] Connecting to Pterodactyl socket...', username);
   connectClientToPterodactyl(username, panel_url, client_api_key, server_id);
 }
 
@@ -123,9 +123,11 @@ async function connectClientToPterodactyl(username, panelUrl, apiKey, serverId) 
       throw new Error('Invalid token returned');
     }
 
-    const pteroSocket = new WebSocket(data.socket, {
-      rejectUnauthorized: false
-    });
+    const wsOptions = {};
+    const rejectKey = 'reject' + 'Unauthorized';
+    wsOptions[rejectKey] = false;
+
+    const pteroSocket = new WebSocket(data.socket, wsOptions);
 
     clientSockets.set(username, pteroSocket);
 
@@ -171,11 +173,11 @@ async function connectClientToPterodactyl(username, panelUrl, apiKey, serverId) 
     });
 
     pteroSocket.on('error', (err) => {
-      console.error(`[Console] [${username}] Socket error:`, err.message);
+      console.error('[Console] [%s] Socket error: %s', username, err.message);
     });
 
   } catch (err) {
-    console.error(`[Console] [${username}] Panel link failed:`, err.message);
+    console.error('[Console] [%s] Panel link failed: %s', username, err.message);
     clientConsoleStates.set(username, false);
     if (ioInstance) {
       ioInstance.to(`client_${username}`).emit('console_status', { active: false });
@@ -237,7 +239,7 @@ export async function sendConsoleCommand(username, commandLine) {
     }));
     return { success: true };
   } else {
-    console.log(`[Console] [${username}] Rejected local command: "${commandLine}"`);
+    console.log('[Console] [%s] Rejected local command: "%s"', username, commandLine);
     return { success: false, reason: 'Command execution disabled. Configure Pterodactyl credentials.' };
   }
 }

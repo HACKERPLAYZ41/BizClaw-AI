@@ -10,7 +10,7 @@ export async function triggerTwilioAlert(username, customerName, message) {
 
   const { account_sid, auth_token, twilio_number, owner_number } = twilioConf;
   if (!account_sid || !auth_token || !twilio_number || !owner_number) {
-    console.warn(`[Twilio] [${username}] Missing configurations in database. Skipping voice alert.`);
+    console.warn('[Twilio] [%s] Missing configurations in database. Skipping voice alert.', username);
     return { success: false, reason: 'Missing credentials' };
   }
 
@@ -37,15 +37,15 @@ export async function triggerTwilioAlert(username, customerName, message) {
     });
 
     if (res.ok) {
-      console.log(`[Twilio] [${username}] Outbound voice call alert triggered successfully to ${owner_number}`);
+      console.log('[Twilio] [%s] Outbound voice call alert triggered successfully to %s', username, owner_number);
       return { success: true };
     } else {
       const errorText = await res.text();
-      console.error(`[Twilio] [${username}] Outbound call request failed:`, errorText);
+      console.error('[Twilio] [%s] Outbound call request failed: %s', username, errorText);
       return { success: false, reason: errorText };
     }
   } catch (err) {
-    console.error(`[Twilio] [${username}] Error triggering voice call:`, err);
+    console.error('[Twilio] [%s] Error triggering voice call: %s', username, err.message || err);
     return { success: false, error: err.message };
   }
 }

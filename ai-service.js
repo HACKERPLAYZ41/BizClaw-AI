@@ -34,7 +34,7 @@ export async function generateChatReply(username, phone, messageText, history) {
   const temperature = clientConfig.ai?.temperature ?? 0.7;
 
   if (!isApiKeyConfigured(provider, clientConfig, globalConfig)) {
-    console.warn(`[AI Service] Warning: API key for "${provider}" (Client: ${username}) is not configured globally or locally.`);
+    console.warn('[AI Service] Warning: API key for "%s" (Client: %s) is not configured globally or locally.', provider, username);
     return `Hello! This is ${clientConfig.business_agent?.name || 'Assistant'}. We are currently updating our automated customer service system. A human representative will get back to you shortly!`;
   }
 
@@ -84,7 +84,7 @@ export async function generateChatReply(username, phone, messageText, history) {
       return completion.choices[0].message.content.trim();
     }
   } catch (error) {
-    console.error(`[AI Service] Error generating response for user "${username}" from provider "${provider}":`, error);
+    console.error('[AI Service] Error generating response for user "%s" from provider "%s": %s', username, provider, error.message || error);
     return `I apologize for the delay. We are experiencing high volume at the moment, but we have received your message and will respond as soon as possible.`;
   }
 }
@@ -135,7 +135,7 @@ Reply ONLY with the single summary sentence. Do not include markdown, greetings,
       return completion.choices[0].message.content.trim().replace(/['"“”]/g, '');
     }
   } catch (error) {
-    console.error(`[AI Service] Lead extraction failed for client "${username}":`, error);
+    console.error('[AI Service] Lead extraction failed for client "%s": %s', username, error.message || error);
     return 'Inquired about store services';
   }
 }

@@ -12,6 +12,12 @@ const DEFAULT_DB = {
   escalations: {}  // Urgent status locks: { username: { phone: { phone, escalatedAt, expiresAt } } }
 };
 
+function isSafeKey(key) {
+  if (typeof key !== 'string') return false;
+  const k = key.toLowerCase();
+  return k !== '__proto__' && k !== 'constructor' && k !== 'prototype';
+}
+
 let dbCache = null;
 
 function readDb() {
@@ -205,6 +211,7 @@ export function useLicense(key, username) {
 // --- Config Management ---
 
 export function getUserConfig(username) {
+  if (!isSafeKey(username)) return null;
   const db = readDb();
   if (!db.configs[username]) {
     // Shallow copy defaults
@@ -215,6 +222,7 @@ export function getUserConfig(username) {
 }
 
 export function updateUserConfig(username, newConfig) {
+  if (!isSafeKey(username)) return null;
   const db = readDb();
   if (!db.configs[username]) {
     db.configs[username] = JSON.parse(JSON.stringify(DEFAULT_CLIENT_CONFIG));
@@ -222,8 +230,12 @@ export function updateUserConfig(username, newConfig) {
 
   // Deep merge
   for (const key of Object.keys(newConfig)) {
+    if (!isSafeKey(key)) continue;
     if (typeof newConfig[key] === 'object' && newConfig[key] !== null && db.configs[username][key]) {
-      db.configs[username][key] = { ...db.configs[username][key], ...newConfig[key] };
+      for (const subKey of Object.keys(newConfig[key])) {
+        if (!isSafeKey(subKey)) continue;
+        db.configs[username][key][subKey] = newConfig[key][subKey];
+      }
     } else {
       db.configs[username][key] = newConfig[key];
     }
@@ -236,11 +248,13 @@ export function updateUserConfig(username, newConfig) {
 // --- Leads Management ---
 
 export function getLeads(username) {
+  if (!isSafeKey(username)) return [];
   const db = readDb();
   return db.leads[username] || [];
 }
 
 export function addLead(username, { phone, name, summary, status = 'New' }) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return null;
   const db = readDb();
   if (!db.leads[username]) db.leads[username] = [];
   
@@ -268,6 +282,7 @@ export function addLead(username, { phone, name, summary, status = 'New' }) {
 }
 
 export function updateLeadStatus(username, phone, status) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return false;
   const db = readDb();
   if (!db.leads[username]) return false;
   
@@ -281,6 +296,7 @@ export function updateLeadStatus(username, phone, status) {
 }
 
 export function deleteLead(username, phone) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return false;
   const db = readDb();
   if (!db.leads[username]) return false;
   
@@ -297,12 +313,14 @@ export function deleteLead(username, phone) {
 // --- Chat History ---
 
 export function getChatHistory(username, phone) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return [];
   const db = readDb();
   if (!db.chatHistory[username]) db.chatHistory[username] = {};
   return db.chatHistory[username][phone] || [];
 }
 
 export function addChatMessage(username, phone, role, content) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return [];
   const db = readDb();
   if (!db.chatHistory[username]) db.chatHistory[username] = {};
   if (!db.chatHistory[username][phone]) db.chatHistory[username][phone] = [];
@@ -322,6 +340,7 @@ export function addChatMessage(username, phone, role, content) {
 }
 
 export function clearChatHistory(username, phone) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return false;
   const db = readDb();
   if (db.chatHistory[username] && db.chatHistory[username][phone]) {
     delete db.chatHistory[username][phone];
@@ -334,43 +353,33 @@ export function clearChatHistory(username, phone) {
 // --- Escalation ---
 
 export function getEscalation(username, phone) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return null;
   const db = readDb();
   if (!db.escalations[username]) db.escalations[username] = {};
-  
-  const escalation = db.escalations[username][phone];
-  if (!escalation) return null;
-  
-  if (Date.now() > escalation.expiresAt) {
-    delete db.escalations[username][phone];
-    writeDb(db);
-    return null;
-  }
-  return escalation;
+  return db.escalations[username][phone] || null;
 }
 
 export function escalate(username, phone, durationMs = 3600000) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return null;
   const db = readDb();
   if (!db.escalations[username]) db.escalations[username] = {};
   
-  const expiresAt = Date.now() + durationMs;
   db.escalations[username][phone] = {
     phone,
-    escalatedAt: Date.now(),
-    expiresAt
+    escalatedAt: new Date().toISOString(),
+    expiresAt: Date.now() + durationMs
   };
   
-  if (db.leads[username]) {
-    const lead = db.leads[username].find(l => l.phone === phone);
-    if (lead) {
-      lead.status = 'Urgent';
-    }
-  }
-  
   writeDb(db);
+  
+  // Set lead status to Urgent
+  addLead(username, { phone, status: 'Urgent' });
+  
   return db.escalations[username][phone];
 }
 
 export function resolveEscalation(username, phone) {
+  if (!isSafeKey(username) || !isSafeKey(phone)) return false;
   const db = readDb();
   if (!db.escalations[username]) return false;
   
@@ -382,6 +391,17 @@ export function resolveEscalation(username, phone) {
         lead.status = 'Resolved';
       }
     }
+    writeDb(db);
+    return true;
+  }
+  return false;
+}
+
+export function updateUserPasswordHash(username, newHash) {
+  const db = readDb();
+  const user = db.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+  if (user) {
+    user.passwordHash = newHash;
     writeDb(db);
     return true;
   }
