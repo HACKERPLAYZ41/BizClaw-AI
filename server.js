@@ -353,7 +353,7 @@ setupConsoleLogger(io);
 initWhatsApp(io);
 
 // Start server
-const port = process.env.PORT || getConfig().server?.port || 3000;
+const port = process.env.PORT || process.env.SERVER_PORT || getConfig().server?.port || 3000;
 server.listen(port, () => {
   console.log(`[Server] Multi-tenant dashboard running on port ${port}`);
 });
