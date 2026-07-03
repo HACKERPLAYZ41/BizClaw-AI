@@ -362,7 +362,7 @@ initWhatsApp(io);
 
 // Start server
 const port = process.env.PORT || process.env.SERVER_PORT || getConfig().server?.port || 3000;
-server.listen(port, () => {
+server.listen(port, async () => {
   const interfaces = os.networkInterfaces();
   const addresses = [];
   for (const k in interfaces) {
@@ -375,7 +375,18 @@ server.listen(port, () => {
   }
   const ipList = addresses.length > 0 ? addresses.join(', ') : 'localhost';
   console.log(`[Server] Multi-tenant dashboard running on port ${port} (Internal Container IP: ${ipList})`);
-  console.log(`[Server] Note: Access the panel from your browser using your Pterodactyl node's Public IP or Domain on port ${port}`);
+  
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    if (res.ok) {
+      const data = await res.json();
+      console.log(`[Server] Public Access URL: http://${data.ip}:${port}`);
+    } else {
+      throw new Error();
+    }
+  } catch (e) {
+    console.log(`[Server] Note: Access the panel from your browser using your Pterodactyl node's Public IP or Domain on port ${port}`);
+  }
 });
 
 // Handle safe shutdowns
