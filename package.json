@@ -1,0 +1,23 @@
+{
+  "name": "whatsapp-ai-business-agent",
+  "version": "1.0.0",
+  "description": "Pterodactyl-Hosted WhatsApp AI Business Agent with integrated Web Dashboard",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "@google/generative-ai": "^0.21.0",
+    "openai": "^4.52.0",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "js-yaml": "^4.1.0",
+    "qrcode": "^1.5.3",
+    "pino": "^9.2.0",
+    "ws": "^8.17.0",
+    "dotenv": "^16.4.5"
+  }
+}

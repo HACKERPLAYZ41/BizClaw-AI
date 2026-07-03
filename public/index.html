@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopAssistant AI - SaaS Control Panel</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts Outfit & Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #080b11;
+      color: #f3f4f6;
+    }
+    h1, h2, h3, .font-display {
+      font-family: 'Outfit', sans-serif;
+    }
+    .glass-card {
+      background: rgba(17, 24, 39, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .glass-input {
+      background: rgba(31, 41, 55, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #f3f4f6;
+      transition: all 0.3s ease;
+    }
+    .glass-input:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+      outline: none;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(31, 41, 55, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(168, 85, 247, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(168, 85, 247, 0.6);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- ================= AUTH CONTAINER (LOGIN & REGISTER) ================= -->
+  <div id="auth-container" class="fixed inset-0 flex items-center justify-center z-50 px-4 bg-[#080b11]">
+    <div class="absolute inset-0 bg-gradient-to-tr from-purple-900/20 via-[#080b11] to-blue-900/10 opacity-70"></div>
+    <div class="glass-card w-full max-w-md p-8 rounded-2xl relative z-10 text-center flex flex-col gap-6">
+      <div class="flex flex-col items-center gap-2">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h2 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400 mt-2">ShopAssistant SaaS</h2>
+        <p id="auth-subtitle" class="text-sm text-gray-400">Unlock your automated WhatsApp Business panel</p>
+      </div>
+
+      <!-- Toggle Buttons -->
+      <div class="flex bg-gray-950/60 p-1 rounded-xl border border-white/5">
+        <button id="toggle-login-btn" class="flex-1 py-2 text-sm font-semibold rounded-lg text-white bg-purple-600/20 border border-purple-500/10">
+          Login
+        </button>
+        <button id="toggle-register-btn" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-400 hover:text-white">
+          Register Key
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="flex flex-col gap-4 text-left">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Username</label>
+          <input type="text" id="login-username" required placeholder="admin or username" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Password</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+        </div>
+        <div id="login-error" class="hidden text-xs text-red-400 bg-red-950/30 border border-red-500/20 px-4 py-2 rounded-xl">
+          Incorrect username or password.
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-semibold text-white shadow-lg shadow-purple-500/25 transition duration-300">
+          Sign In
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="hidden flex flex-col gap-4 text-left">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Client Username</label>
+          <input type="text" id="register-username" required placeholder="Create custom username" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Password</label>
+          <input type="password" id="register-password" required placeholder="••••••••" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">License Key</label>
+          <input type="text" id="register-key" required placeholder="XXXX-XXXX-XXXX" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm font-mono uppercase text-center tracking-wider" />
+        </div>
+        <div id="register-error" class="hidden text-xs text-red-400 bg-red-950/30 border border-red-500/20 px-4 py-2 rounded-xl">
+          Invalid key or username already taken.
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-semibold text-white shadow-lg shadow-purple-500/25 transition duration-300">
+          Activate & Register
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= DASHBOARD CONTAINER ================= -->
+  <div id="dashboard-container" class="hidden flex-1 flex flex-col">
+    
+    <!-- Header / Navbar -->
+    <header class="border-b border-white/5 bg-gray-950/40 backdrop-blur-md sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/10">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-base font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">ShopAssistant AI</span>
+            <span id="role-badge" class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Client View</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs (Dynamically filled via dashboard.js) -->
+        <nav id="nav-tabs" class="hidden md:flex space-x-1">
+          <!-- Populated dynamically: client views vs owner views -->
+        </nav>
+
+        <!-- Right Side Actions -->
+        <div class="flex items-center gap-4">
+          <button id="logout-btn" class="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-950/20 transition duration-150" title="Lock Panel">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mobile Nav Row -->
+      <div id="nav-tabs-mobile" class="md:hidden border-t border-white/5 bg-gray-950/60 py-2 flex justify-around">
+        <!-- Populated dynamically -->
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      <!-- Toast Alert Notify -->
+      <div id="toast" class="hidden fixed bottom-5 right-5 z-50 glass-card px-6 py-4 rounded-xl flex items-center gap-3 transition-all duration-300 transform translate-y-10 opacity-0">
+        <span id="toast-icon"></span>
+        <span id="toast-message" class="text-sm font-medium text-gray-200">Settings saved!</span>
+      </div>
+
+      <!-- ================= CLIENT TABS ================= -->
+
+      <!-- TAB: WHATSAPP STATUS -->
+      <section id="tab-status" class="tab-content flex flex-col gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Connection Status Card -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col justify-between min-h-[220px]">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-300">Agent Connection</h3>
+              <p class="text-xs text-gray-400 mt-1">Live instance pairing state</p>
+            </div>
+            
+            <div class="my-4 flex items-center gap-4">
+              <div id="status-pulse" class="w-5 h-5 rounded-full flex items-center justify-center bg-gray-600/30">
+                <div id="status-pulse-core" class="w-2.5 h-2.5 rounded-full bg-gray-500"></div>
+              </div>
+              <div>
+                <span id="status-text" class="text-xl font-bold tracking-wide uppercase text-gray-400">Disconnected</span>
+                <p id="status-subtext" class="text-xs text-gray-500">Server instance offline.</p>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <button id="wa-logout-btn" class="hidden px-4 py-2 text-xs font-semibold text-red-400 hover:text-white bg-red-950/20 border border-red-500/20 hover:bg-red-600 rounded-xl transition duration-150">
+                Force Disconnect WhatsApp
+              </button>
+            </div>
+          </div>
+
+          <!-- Quota Limits & Expiry Indicators -->
+          <div class="glass-card p-6 rounded-2xl lg:col-span-2 flex flex-col justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-300">Subscription Quotas</h3>
+              <p class="text-xs text-gray-400 mt-1">Details generated under your active license key</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 my-2">
+              <!-- Message Quota Meter -->
+              <div>
+                <div class="flex justify-between items-baseline mb-1">
+                  <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Messages Limit</span>
+                  <span id="quota-text" class="text-sm font-bold text-white">0 / 0</span>
+                </div>
+                <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden border border-white/5">
+                  <div id="quota-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-1">Pauses chatbot reply actions if quota is filled.</p>
+              </div>
+
+              <!-- Subscription Expiration Info -->
+              <div class="flex flex-col justify-center">
+                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Time Remaining</span>
+                <span id="expiry-text" class="text-base font-bold text-white mt-1">Loading...</span>
+                <p class="text-[10px] text-gray-500 mt-1">Contact your distributor to renew or extend keys.</p>
+              </div>
+            </div>
+
+            <div class="border-t border-white/5 pt-3 grid grid-cols-2 gap-4 text-center">
+              <div>
+                <span class="text-xs text-gray-500">Leads Captured</span>
+                <p id="stat-total-leads" class="text-xl font-bold text-white">0</p>
+              </div>
+              <div>
+                <span class="text-xs text-gray-500">Escalation Pauses</span>
+                <p id="stat-urgent-leads" class="text-xl font-bold text-red-400">0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic WhatsApp QR Container -->
+        <div class="glass-card p-8 rounded-2xl flex flex-col items-center justify-center min-h-[380px] text-center">
+          <div id="qr-loading" class="flex flex-col items-center gap-3">
+            <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-sm text-gray-400 mt-2">Checking device login state...</p>
+          </div>
+
+          <div id="qr-container" class="hidden flex-col items-center gap-6">
+            <h3 class="text-xl font-bold">Connect your WhatsApp</h3>
+            <p class="text-sm text-gray-400 max-w-md">Open WhatsApp -> Menu -> Linked Devices and scan this QR code to start automated responses.</p>
+            
+            <div class="p-4 bg-white rounded-xl shadow-lg inline-block">
+              <img id="qr-image" src="" alt="WhatsApp QR Code" class="w-60 h-60" />
+            </div>
+            
+            <p class="text-xs text-purple-400 animate-pulse">Pairing code refreshes automatically. Scan quickly.</p>
+          </div>
+
+          <div id="connected-banner" class="hidden flex-col items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-white">Bot instance is online</h3>
+            <p class="text-sm text-gray-400 max-w-md">Your WhatsApp bot is connected and actively listening for customer queries.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: AI CONFIGURATION -->
+      <section id="tab-config" class="tab-content hidden">
+        <form id="config-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <div class="lg:col-span-2 flex flex-col gap-6">
+            <!-- AI Engine -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
+              <h3 class="text-lg font-semibold text-gray-300 pb-2 border-b border-white/5">AI Engine Settings</h3>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Active AI Provider</label>
+                  <select id="config-ai-provider" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
+                    <option value="gemini">Google Gemini</option>
+                    <option value="openai">OpenAI (ChatGPT)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Creativity (Temperature)</label>
+                  <div class="flex items-center gap-3 py-1">
+                    <input type="range" id="config-ai-temperature" min="0" max="1" step="0.1" class="flex-1 accent-purple-500" />
+                    <span id="temp-val" class="text-sm font-semibold text-purple-400 w-8 text-right">0.7</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gemini Subpanel -->
+              <div id="panel-gemini" class="flex flex-col gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Gemini API Key</label>
+                  <input type="password" id="config-gemini-key" placeholder="Client Custom Key (Optional fallback to System API key)" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Gemini Model</label>
+                  <select id="config-gemini-model" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
+                    <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                    <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- OpenAI Subpanel -->
+              <div id="panel-openai" class="hidden flex flex-col gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">OpenAI API Key</label>
+                  <input type="password" id="config-openai-key" placeholder="Client Custom Key (Optional fallback to System API key)" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">OpenAI Model</label>
+                  <select id="config-openai-model" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
+                    <option value="gpt-4o-mini">gpt-4o-mini</option>
+                    <option value="gpt-4o">gpt-4o</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prompts and behaviors -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
+              <h3 class="text-lg font-semibold text-gray-300 pb-2 border-b border-white/5">Bot Role & Rules</h3>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Agent Name (Public)</label>
+                  <input type="text" id="config-agent-name" placeholder="ShopAssistant AI" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
+                </div>
+                <div class="flex items-center gap-2 pt-6">
+                  <input type="checkbox" id="config-lead-capture" class="w-4 h-4 rounded text-purple-600 bg-gray-800 border-gray-700 focus:ring-purple-500 focus:ring-offset-gray-900" />
+                  <label for="config-lead-capture" class="text-sm text-gray-300 font-medium select-none">Auto CRM Lead Capture</label>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">AI Prompts Core Instructions</label>
+                <textarea id="config-agent-prompt" rows="5" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm font-mono" placeholder="Set FAQ responses and store details..."></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Escalation Keywords (Comma separated)</label>
+                <input type="text" id="config-escalation-keys" placeholder="human, support, manager, help" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Side configs: Pterodactyl and security -->
+          <div class="flex flex-col gap-6">
+            <!-- Pterodactyl Link -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
+              <h3 class="text-lg font-semibold text-gray-300 pb-2 border-b border-white/5">Pterodactyl linking</h3>
+              
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Panel URL</label>
+                <input type="text" id="config-ptero-url" placeholder="https://panel.blockcode.in" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Client API Key</label>
+                <input type="password" id="config-ptero-key" placeholder="ptlc_xxxxxxxx" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Server ID</label>
+                <input type="text" id="config-ptero-id" placeholder="xxxx-xxxx-xxxx" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
+              </div>
+            </div>
+
+            <!-- Save Buttons -->
+            <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-bold text-white shadow-lg shadow-purple-500/10 transition duration-300 flex items-center justify-center gap-2">
+              Save AI Settings
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- TAB: CLIENT CRM LEADS -->
+      <section id="tab-leads" class="tab-content hidden">
+        <div class="glass-card rounded-2xl overflow-hidden">
+          <div class="p-6 border-b border-white/5 bg-gray-900/20">
+            <h3 class="text-lg font-semibold text-white">Leads CRM Database</h3>
+            <p class="text-xs text-gray-400 mt-1">Client queries parsed and registered in real-time</p>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400 tracking-wider">
+                  <th class="px-6 py-4">Client</th>
+                  <th class="px-6 py-4">Phone Number</th>
+                  <th class="px-6 py-4">AI Inquiry Interest</th>
+                  <th class="px-6 py-4">Captured At</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leads-table-body" class="divide-y divide-white/5 text-sm">
+                <!-- Dynamic CRM leads -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: LIVE CONSOLE (CLIENT & ADMIN SHARED) -->
+      <section id="tab-console" class="tab-content hidden flex flex-col gap-4">
+        <div class="glass-card p-4 rounded-2xl flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-semibold text-white">Server Terminal Logs</h3>
+            <p class="text-xs text-gray-400">Streamed runtime status lines</p>
+          </div>
+          <div>
+            <span id="console-mode-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-800 text-gray-300">
+              Process Logs
+            </span>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden flex flex-col bg-black/60 border border-white/5 h-[500px]">
+          <div id="terminal-pane" class="flex-1 p-5 font-mono text-xs overflow-y-auto flex flex-col gap-1.5 leading-relaxed text-gray-300">
+            <div class="text-gray-500">// Terminal stream active...</div>
+          </div>
+          
+          <form id="terminal-form" class="border-t border-white/5 bg-gray-950/80 p-3 flex items-center gap-3">
+            <span class="text-purple-400 font-mono pl-2 text-sm">$</span>
+            <input type="text" id="terminal-input" autocomplete="off" placeholder="Run container shell commands (Requires active Pterodactyl integration)..." class="flex-1 bg-transparent text-sm text-gray-200 border-none outline-none font-mono focus:ring-0" />
+            <button type="submit" class="px-4 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold text-xs text-white transition">
+              Run
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= OWNER (ADMIN) TABS ================= -->
+
+      <!-- TAB: ADMIN LICENSES GENERATION -->
+      <section id="tab-admin-licenses" class="tab-content hidden flex flex-col gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Generator form -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
+            <h3 class="text-lg font-semibold text-gray-300 pb-2 border-b border-white/5">Generate SaaS License</h3>
+            
+            <form id="license-generator-form" class="flex flex-col gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Duration (Days)</label>
+                <select id="gen-days" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
+                  <option value="7">7 Days (Weekly Trial)</option>
+                  <option value="30" selected>30 Days (Monthly Plan)</option>
+                  <option value="90">90 Days (Quarterly Plan)</option>
+                  <option value="365">365 Days (Yearly Plan)</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Client Message limit</label>
+                <select id="gen-limit" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
+                  <option value="100">100 messages</option>
+                  <option value="500" selected>500 messages</option>
+                  <option value="2000">2000 messages</option>
+                  <option value="10000">10000 messages</option>
+                </select>
+              </div>
+
+              <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-bold text-white shadow-lg shadow-purple-500/10 transition">
+                Create License Key
+              </button>
+            </form>
+          </div>
+
+          <!-- Active Licenses list -->
+          <div class="glass-card lg:col-span-2 rounded-2xl overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-white/5 bg-gray-900/20">
+              <h3 class="text-base font-semibold text-white">License registry</h3>
+              <p class="text-xs text-gray-400 mt-1">All generated credentials for client activations</p>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto max-h-[380px]">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400 tracking-wider">
+                    <th class="px-6 py-4">License Key</th>
+                    <th class="px-6 py-4">Validity</th>
+                    <th class="px-6 py-4">Message Limit</th>
+                    <th class="px-6 py-4">Used By</th>
+                    <th class="px-6 py-4">Generated At</th>
+                  </tr>
+                </thead>
+                <tbody id="licenses-table-body" class="divide-y divide-white/5 text-sm">
+                  <!-- Dynamic Licenses -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB: ADMIN CLIENT ACCOUNTS AUDITS -->
+      <section id="tab-admin-clients" class="tab-content hidden">
+        <div class="glass-card rounded-2xl overflow-hidden">
+          <div class="p-6 border-b border-white/5 bg-gray-900/20">
+            <h3 class="text-lg font-semibold text-white">Registered Client Database</h3>
+            <p class="text-xs text-gray-400 mt-1">Review active users, message counts, and control suspensions</p>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400 tracking-wider">
+                  <th class="px-6 py-4">Client Username</th>
+                  <th class="px-6 py-4">License Link</th>
+                  <th class="px-6 py-4">Subscription End</th>
+                  <th class="px-6 py-4">Message Quota Usage</th>
+                  <th class="px-6 py-4">Account Status</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="clients-table-body" class="divide-y divide-white/5 text-sm">
+                <!-- Dynamic Clients accounts rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-4 text-center text-xs text-gray-500 bg-gray-950/20">
+      <div class="max-w-7xl mx-auto px-4">
+        © 2026 ShopAssistant AI. SaaS Multi-Tenant Layout. Secured panel configs.
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
