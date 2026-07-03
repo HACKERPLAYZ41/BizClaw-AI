@@ -427,6 +427,33 @@
                 <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Escalation Keywords (Comma separated)</label>
                 <input type="text" id="config-escalation-keys" placeholder="human, support, manager, help" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
               </div>
+              
+              <!-- Client Twilio Configuration -->
+              <div class="border-t border-white/5 pt-6 mt-6">
+                <h4 class="text-sm font-semibold text-white mb-4">📞 Twilio Outbound Voice Call Alerts</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="flex items-center gap-2 sm:col-span-2 mb-2">
+                    <input type="checkbox" id="config-twilio-enabled" class="w-4 h-4 rounded text-purple-600 bg-gray-800 border-gray-700 focus:ring-purple-500 focus:ring-offset-gray-900" />
+                    <label for="config-twilio-enabled" class="text-sm text-gray-300 font-medium select-none">Enable Voice Call Alerts on Support Requests</label>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Twilio Account SID</label>
+                    <input type="text" id="config-twilio-sid" placeholder="AC..." class="w-full glass-input px-3 py-2 rounded-lg text-xs" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Twilio Auth Token</label>
+                    <input type="password" id="config-twilio-token" placeholder="Your Twilio Token" class="w-full glass-input px-3 py-2 rounded-lg text-xs font-mono" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Twilio Outbound Number</label>
+                    <input type="text" id="config-twilio-number" placeholder="+1XXXXXXXXXX" class="w-full glass-input px-3 py-2 rounded-lg text-xs" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Owner Phone Number (Receive Call)</label>
+                    <input type="text" id="config-twilio-owner" placeholder="+91XXXXXXXXXX" class="w-full glass-input px-3 py-2 rounded-lg text-xs" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -485,6 +512,82 @@
           </div>
         </div>
       </section>
+
+      <!-- TAB: CLIENT DOCUMENTATION GUIDE -->
+      <section id="tab-guide" class="tab-content hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Card 1: WhatsApp Connection -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">📱</span>
+              <h3 class="text-base font-semibold text-white">WhatsApp Device Connection</h3>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">
+              BizClaw AI uses multiple concurrent container sockets (Baileys) to run client bots concurrently. You don't need to keep any browser or tab open to run your assistant.
+            </p>
+            <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
+              <li>Open your dashboard and go to the <strong>WhatsApp Status</strong> tab.</li>
+              <li>Wait for the secure pairing QR code to generate.</li>
+              <li>Open WhatsApp on your mobile phone, open settings, and select <strong>Linked Devices</strong>.</li>
+              <li>Tap <strong>Link a Device</strong> and scan the QR code.</li>
+              <li>Once paired, your status changes to a green <strong>Connected</strong> tag. The bot will automatically auto-resume whenever the server starts!</li>
+            </ul>
+          </div>
+
+          <!-- Card 2: AI Settings & Custom Prompts -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">🤖</span>
+              <h3 class="text-base font-semibold text-white">AI Agent Settings & Prompting</h3>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">
+              Configure your chatbot's character, FAQ replies, and business details. Load custom templates to save setup time.
+            </p>
+            <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
+              <li>Click the <strong>Load Template</strong> dropdown and select from 50 pre-built business niche templates (such as Minecraft Hosting, Sweet Shop, Gym, etc.).</li>
+              <li>Customize the generated text to insert your own product names, plans, pricing, and timing details.</li>
+              <li><strong>Token Protection Guidelines:</strong> Keep prompt rules instructing the AI to answer in 1 to 2 sentences maximum. This keeps WhatsApp chats natural and saves your package message quota limits!</li>
+            </ul>
+          </div>
+
+          <!-- Card 3: Twilio Voice Call Alerts -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">📞</span>
+              <h3 class="text-base font-semibold text-white">Twilio Voice Call Setup</h3>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">
+              Enable your bot to make outbound phone calls to your mobile phone when customers ask for support or place order reservations.
+            </p>
+            <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
+              <li>Log in to your <strong>Twilio Dashboard</strong> and copy your <strong>Account SID</strong> and <strong>Auth Token</strong>.</li>
+              <li>Buy or reserve an active Twilio outbound phone number.</li>
+              <li>Insert these details into the fields in the dashboard settings and toggle <strong>Enable Voice Call Alerts</strong>.</li>
+              <li>In the <strong>Owner Number</strong> field, put your own mobile number with country code (e.g. <code>+91XXXXXXXXXX</code>).</li>
+              <li>Twilio's Text-to-Speech (TTS) engine will automatically synthesize a natural voice call warning you of active client tickets!</li>
+            </ul>
+          </div>
+
+          <!-- Card 4: CRM Leads & Chat Inspector -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">📊</span>
+              <h3 class="text-base font-semibold text-white">CRM Leads & Live Chat</h3>
+            </div>
+            <p class="text-xs text-gray-400 leading-relaxed">
+              BizClaw AI parses all customer chats to detect leads and automatically logs them inside the CRM table.
+            </p>
+            <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
+              <li>Customer inquiries automatically generate a lead with an AI-generated interest summary.</li>
+              <li>Click <strong>View Chat</strong> in the CRM table to inspect the read-only WhatsApp message log.</li>
+              <li>Set status to "Resolved" to resume automatic AI responses for that customer thread.</li>
+            </ul>
+          </div>
+
+        </div>
+      </section>
+
 
       <!-- TAB: LIVE CONSOLE (CLIENT & ADMIN SHARED) -->
       <section id="tab-console" class="tab-content hidden">

@@ -256,7 +256,7 @@ async function handleClientIncomingMessage(username, phone, pushName, text, remo
     } catch (e) {}
 
     // Trigger Twilio voice call alert to owner
-    triggerTwilioAlert(pushName, text).catch(() => {});
+    triggerTwilioAlert(username, pushName, text).catch(() => {});
 
     // Emit CRM update
     broadcastClientLeads(username);

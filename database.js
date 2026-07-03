@@ -71,6 +71,13 @@ const DEFAULT_CLIENT_CONFIG = {
     panel_url: '',
     client_api_key: '',
     server_id: ''
+  },
+  twilio: {
+    enabled: false,
+    account_sid: '',
+    auth_token: '',
+    twilio_number: '',
+    owner_number: ''
   }
 };
 

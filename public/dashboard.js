@@ -158,12 +158,14 @@ function mountDashboard(token, role) {
       <button data-tab="status" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-white bg-purple-600/20 border border-purple-500/20">WhatsApp Status</button>
       <button data-tab="config" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-white/5">AI Settings</button>
       <button data-tab="leads" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-white/5">CRM Leads</button>
+      <button data-tab="guide" class="nav-tab px-4 py-2 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-white/5">Help Guide</button>
     `;
     navTabs.innerHTML = clientTabs;
     navTabsMobile.innerHTML = `
       <button data-tab="status" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-white bg-purple-600/20 border border-purple-500/20">WhatsApp</button>
       <button data-tab="config" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400">AI Config</button>
       <button data-tab="leads" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400">CRM Leads</button>
+      <button data-tab="guide" class="nav-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-gray-400">Guide</button>
     `;
 
     document.getElementById('tab-status').classList.remove('hidden');
@@ -413,6 +415,13 @@ function setupClientDashboard(token) {
         system_prompt: document.getElementById('config-agent-prompt').value.trim(),
         auto_lead_capture: document.getElementById('config-lead-capture').checked,
         escalation_keywords: document.getElementById('config-escalation-keys').value.split(',').map(s => s.trim()).filter(s => s !== '')
+      },
+      twilio: {
+        enabled: document.getElementById('config-twilio-enabled').checked,
+        account_sid: document.getElementById('config-twilio-sid').value.trim(),
+        auth_token: document.getElementById('config-twilio-token').value.trim(),
+        twilio_number: document.getElementById('config-twilio-number').value.trim(),
+        owner_number: document.getElementById('config-twilio-owner').value.trim()
       }
     };
 
@@ -465,6 +474,12 @@ async function fetchClientConfiguration() {
     document.getElementById('config-ptero-url').value = config.pterodactyl?.panel_url || '';
     document.getElementById('config-ptero-key').value = config.pterodactyl?.client_api_key || '';
     document.getElementById('config-ptero-id').value = config.pterodactyl?.server_id || '';
+    
+    document.getElementById('config-twilio-enabled').checked = !!config.twilio?.enabled;
+    document.getElementById('config-twilio-sid').value = config.twilio?.account_sid || '';
+    document.getElementById('config-twilio-token').value = config.twilio?.auth_token || '';
+    document.getElementById('config-twilio-number').value = config.twilio?.twilio_number || '';
+    document.getElementById('config-twilio-owner').value = config.twilio?.owner_number || '';
 
   } catch (err) {
     console.error('Failed to load configs:', err);
