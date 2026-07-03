@@ -1,7 +1,7 @@
 {
-  "name": "whatsapp-ai-business-agent",
+  "name": "bizclaw-ai",
   "version": "1.0.0",
-  "description": "Pterodactyl-Hosted WhatsApp AI Business Agent with integrated Web Dashboard",
+  "description": "An autonomous, OpenClaw-inspired WhatsApp AI Agent & Web Dashboard for local businesses and shops. Runs cleanly on Pterodactyl Panel (Node.js) with Gemini/ChatGPT integration & Lead Capture.",
   "main": "server.js",
   "type": "module",
   "scripts": {

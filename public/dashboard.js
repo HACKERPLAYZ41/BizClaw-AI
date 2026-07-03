@@ -456,7 +456,7 @@ async function fetchClientConfiguration() {
     document.getElementById('config-openai-key').value = config.ai?.openai_api_key || '';
     document.getElementById('config-openai-model').value = config.ai?.openai_model || 'gpt-4o-mini';
 
-    document.getElementById('config-agent-name').value = config.business_agent?.name || 'ShopAssistant AI';
+    document.getElementById('config-agent-name').value = config.business_agent?.name || 'BizClaw AI';
     document.getElementById('config-agent-prompt').value = config.business_agent?.system_prompt || '';
     document.getElementById('config-lead-capture').checked = !!config.business_agent?.auto_lead_capture;
     document.getElementById('config-escalation-keys').value = (config.business_agent?.escalation_keywords || []).join(', ');
