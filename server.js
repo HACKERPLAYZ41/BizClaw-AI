@@ -374,7 +374,8 @@ server.listen(port, () => {
     }
   }
   const ipList = addresses.length > 0 ? addresses.join(', ') : 'localhost';
-  console.log(`[Server] Multi-tenant dashboard running on port ${port} (IP: ${ipList})`);
+  console.log(`[Server] Multi-tenant dashboard running on port ${port} (Internal Container IP: ${ipList})`);
+  console.log(`[Server] Note: Access the panel from your browser using your Pterodactyl node's Public IP or Domain on port ${port}`);
 });
 
 // Handle safe shutdowns
