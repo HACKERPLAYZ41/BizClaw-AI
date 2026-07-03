@@ -1,6 +1,10 @@
 # WhatsApp auth sessions
 auth_info/
 baileys_auth_info/
+auto.info/
+auto.info*
+*auth_info*
+*auto.info*
 
 # Secret config and database
 config.yml

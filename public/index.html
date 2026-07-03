@@ -172,7 +172,8 @@
       <!-- ================= CLIENT TABS ================= -->
 
       <!-- TAB: WHATSAPP STATUS -->
-      <section id="tab-status" class="tab-content flex flex-col gap-6">
+      <section id="tab-status" class="tab-content">
+        <div class="flex flex-col gap-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           <!-- Connection Status Card -->
@@ -267,6 +268,7 @@
             <h3 class="text-2xl font-bold text-white">Bot instance is online</h3>
             <p class="text-sm text-gray-400 max-w-md">Your WhatsApp bot is connected and actively listening for customer queries.</p>
           </div>
+        </div>
         </div>
       </section>
 
@@ -411,7 +413,8 @@
       </section>
 
       <!-- TAB: LIVE CONSOLE (CLIENT & ADMIN SHARED) -->
-      <section id="tab-console" class="tab-content hidden flex flex-col gap-4">
+      <section id="tab-console" class="tab-content hidden">
+        <div class="flex flex-col gap-4">
         <div class="glass-card p-4 rounded-2xl flex items-center justify-between">
           <div>
             <h3 class="text-base font-semibold text-white">Server Terminal Logs</h3>
@@ -437,12 +440,14 @@
             </button>
           </form>
         </div>
+        </div>
       </section>
 
       <!-- ================= OWNER (ADMIN) TABS ================= -->
 
       <!-- TAB: ADMIN LICENSES GENERATION -->
-      <section id="tab-admin-licenses" class="tab-content hidden flex flex-col gap-6">
+      <section id="tab-admin-licenses" class="tab-content hidden">
+        <div class="flex flex-col gap-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           <!-- Generator form -->
@@ -501,6 +506,7 @@
             </div>
           </div>
 
+        </div>
         </div>
       </section>
 
