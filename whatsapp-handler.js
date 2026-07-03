@@ -9,6 +9,7 @@ import pino from 'pino';
 import QRCode from 'qrcode';
 import { getConfig } from './config-manager.js';
 import { generateChatReply, extractLeadInfo } from './ai-service.js';
+import { triggerTwilioAlert } from './twilio-service.js';
 import { 
   addChatMessage, 
   getChatHistory, 
@@ -253,6 +254,9 @@ async function handleClientIncomingMessage(username, phone, pushName, text, remo
         });
       }
     } catch (e) {}
+
+    // Trigger Twilio voice call alert to owner
+    triggerTwilioAlert(pushName, text).catch(() => {});
 
     // Emit CRM update
     broadcastClientLeads(username);

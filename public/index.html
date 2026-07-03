@@ -346,13 +346,79 @@
 
               <div>
                 <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">AI Prompts Core Instructions</label>
-                <!-- Quick Templates Helper Buttons -->
+                <!-- Quick Templates Helper Dropdown -->
                 <div class="flex gap-2 mb-2.5 flex-wrap items-center">
                   <span class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mr-1">Load Template:</span>
-                  <button type="button" onclick="applyPromptTemplate('hosting')" class="px-2 py-0.5 text-[10px] font-bold bg-purple-600/20 text-purple-300 border border-purple-500/20 rounded hover:bg-purple-600/40 hover:text-white transition">Minecraft Hosting</button>
-                  <button type="button" onclick="applyPromptTemplate('bot_dev')" class="px-2 py-0.5 text-[10px] font-bold bg-purple-600/20 text-purple-300 border border-purple-500/20 rounded hover:bg-purple-600/40 hover:text-white transition">Bot Dev</button>
-                  <button type="button" onclick="applyPromptTemplate('web_dev')" class="px-2 py-0.5 text-[10px] font-bold bg-purple-600/20 text-purple-300 border border-purple-500/20 rounded hover:bg-purple-600/40 hover:text-white transition">Web Dev</button>
-                  <button type="button" onclick="applyPromptTemplate('plugin_dev')" class="px-2 py-0.5 text-[10px] font-bold bg-purple-600/20 text-purple-300 border border-purple-500/20 rounded hover:bg-purple-600/40 hover:text-white transition">Plugin Dev</button>
+                  <select onchange="applyNicheTemplate(this.value); this.value='';" class="glass-input px-2.5 py-1 rounded text-xs text-gray-300 max-w-[280px] cursor-pointer">
+                    <option value="" disabled selected>-- Select from 50 Business Niches --</option>
+                    
+                    <optgroup label="Tech & Hosting Services">
+                      <option value="hosting">Minecraft Hosting</option>
+                      <option value="bot_dev">Bot Development</option>
+                      <option value="web_dev">Web Development</option>
+                      <option value="plugin_dev">Minecraft Plugin Dev</option>
+                      <option value="it_support">IT Support Service</option>
+                    </optgroup>
+                    
+                    <optgroup label="Food & Dining">
+                      <option value="restaurant">Restaurant / Café</option>
+                      <option value="cafe">Café / Coffee Shop</option>
+                      <option value="bakery">Bakery & Cake Shop</option>
+                      <option value="pizza">Pizza Delivery Shop</option>
+                      <option value="sweet_shop">Sweet Shop / Halwai (Utkarsh Special)</option>
+                      <option value="ice_cream">Ice Cream Parlor</option>
+                      <option value="catering">Catering Service</option>
+                    </optgroup>
+                    
+                    <optgroup label="Retail & Goods Shop">
+                      <option value="retail">General Retail Shop</option>
+                      <option value="clothing">Clothing / Fashion Boutique</option>
+                      <option value="grocery">Grocery / Supermarket</option>
+                      <option value="pharmacy">Pharmacy / Medical Store</option>
+                      <option value="furniture">Furniture Store</option>
+                      <option value="flower_shop">Flower Shop / Florist</option>
+                      <option value="book_store">Book Store & Stationery</option>
+                      <option value="toy_store">Toy Store</option>
+                      <option value="jewelry">Jewelry Shop</option>
+                      <option value="electronics">Electronics Shop</option>
+                      <option value="hardware">Hardware & Tools Store</option>
+                    </optgroup>
+                    
+                    <optgroup label="Daily & Home Services">
+                      <option value="salon">Salon / Hairdresser</option>
+                      <option value="gym">Gym / Fitness Trainer</option>
+                      <option value="auto_repair">Automobile Repair / Garage</option>
+                      <option value="cleaner">Cleaning Services</option>
+                      <option value="plumber">Plumber / Handyman</option>
+                      <option value="electrician">Electrician</option>
+                      <option value="car_wash">Car Wash / Detailer</option>
+                      <option value="laundry">Laundry & Dry Cleaning</option>
+                      <option value="courier">Courier & Logistics</option>
+                    </optgroup>
+                    
+                    <optgroup label="Professional & Studio Agency">
+                      <option value="real_estate">Real Estate Agent</option>
+                      <option value="photographer">Photographer / Studio</option>
+                      <option value="event_planner">Event Planner / Wedding</option>
+                      <option value="security">Security Agency / Guards</option>
+                      <option value="legal">Law Firm / Legal Consultant</option>
+                      <option value="accounting">Accounting & Tax Advisor</option>
+                      <option value="travel">Travel Agency</option>
+                      <option value="hotel">Hotel / Guest House</option>
+                      <option value="pet_shop">Pet Shop / Grooming</option>
+                      <option value="design_agency">Graphic Design Studio</option>
+                      <option value="marketing">Digital Marketing Agency</option>
+                    </optgroup>
+                    
+                    <optgroup label="Education & Coaching">
+                      <option value="tutor">Private Tutor / Coaching</option>
+                      <option value="dance_music">Dance & Music Academy</option>
+                      <option value="sports_coaching">Sports / Cricket Academy</option>
+                      <option value="interior_design">Interior Designer</option>
+                      <option value="english_classes">Language / IELTS Classes</option>
+                      <option value="counselor">Career Counselor</option>
+                    </optgroup>
+                  </select>
                 </div>
                 <textarea id="config-agent-prompt" rows="5" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm font-mono" placeholder="Set FAQ responses and store details..."></textarea>
               </div>
@@ -558,27 +624,34 @@
   </div>
 
   <!-- Chat History Modal -->
-  <div id="chat-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="glass-card w-full max-w-2xl rounded-2xl overflow-hidden flex flex-col max-h-[85vh] border border-white/10 shadow-2xl">
+  <div id="chat-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+    <div class="glass-card w-full max-w-2xl rounded-2xl overflow-hidden flex flex-col max-h-[85vh] border border-white/10 shadow-2xl transition-all duration-300 transform scale-100">
       <!-- Header -->
-      <div class="p-6 border-b border-white/5 bg-gray-900/40 flex items-center justify-between">
-        <div>
-          <h3 id="chat-modal-title" class="text-lg font-semibold text-white">Chat Conversation</h3>
-          <p id="chat-modal-subtitle" class="text-xs text-gray-400 mt-1">Showing recent thread messages</p>
+      <div class="p-5 border-b border-white/5 bg-gray-950/60 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-sm shadow-md">
+            💬
+            <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-gray-950 animate-pulse"></span>
+          </div>
+          <div>
+            <h3 id="chat-modal-title" class="text-sm font-semibold text-white leading-tight">Chat Conversation</h3>
+            <p id="chat-modal-subtitle" class="text-[10px] text-gray-400 mt-0.5">Automated Chatbot Assistant Log</p>
+          </div>
         </div>
         <button onclick="closeChatModal()" class="text-gray-400 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
       <!-- Messages List -->
-      <div id="chat-modal-body" class="flex-1 p-6 overflow-y-auto flex flex-col gap-4 bg-black/30 min-h-[300px] max-h-[50vh]">
+      <div id="chat-modal-body" class="flex-1 p-6 overflow-y-auto flex flex-col gap-4 bg-gradient-to-b from-gray-950/95 via-gray-900/90 to-gray-950/95 min-h-[350px] max-h-[55vh] border-y border-white/5 scrollbar-thin scrollbar-thumb-purple-500/20 scrollbar-track-transparent">
         <!-- Dynamic Chat Bubbles -->
       </div>
       <!-- Footer -->
-      <div class="p-4 border-t border-white/5 bg-gray-950/60 text-center text-[10px] text-gray-500">
-        This is a read-only history of the client conversation parsed by the BizClaw AI chatbot.
+      <div class="p-3 border-t border-white/5 bg-gray-950/80 text-center text-[10px] text-gray-500 flex items-center justify-center gap-1">
+        <span>🛡️</span>
+        <span>Secure, read-only AI session log. Escalate if manual intervention is needed.</span>
       </div>
     </div>
   </div>

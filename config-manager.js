@@ -14,6 +14,13 @@ server:
 ai:
   global_gemini_api_key: ""
   global_openai_api_key: ""
+
+twilio:
+  enabled: false
+  account_sid: ""
+  auth_token: ""
+  twilio_number: ""
+  owner_number: ""
 `;
 
 let currentConfig = null;

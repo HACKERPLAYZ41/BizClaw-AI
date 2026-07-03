@@ -883,29 +883,78 @@ function escapeHtml(str) {
 }
 
 // --- Dynamic AI Prompts Templates helper ---
-window.applyPromptTemplate = function(type) {
+window.applyNicheTemplate = function(nicheKey) {
   const promptBox = document.getElementById('config-agent-prompt');
   const agentName = document.getElementById('config-agent-name').value.trim() || 'Our Store';
   
-  const templates = {
-    hosting: `You are an AI Assistant for ${agentName} Minecraft Hosting.\n\nServices Info:\n- We offer high-performance Minecraft Server Hosting (Java & Bedrock).\n- CPU/Hardware: [List hardware, e.g., Ryzen 9 7950X, DDR5 RAM, NVMe SSDs]\n- Node Locations: [List locations, e.g., Germany, Singapore, USA]\n- Server Pricing: [List plans, e.g., 2GB RAM - $4/mo, 4GB RAM - $8/mo, 8GB RAM - $16/mo]\n\nInstructions:\n- Answer customer queries politely and concisely.\n- Help them choose the right plan based on player count and plugins/mods.\n- Guide them on how to buy, check setup status, and connect to their server.\n- Automatically detect the customer's language and reply in the same language or in Hinglish (Romanized Hindi) if appropriate.`,
+  const niches = {
+    // Tech & Dev
+    hosting: { name: 'Minecraft Hosting', info: '- Products: High-performance Minecraft servers (Java/Bedrock)\n- CPU: Ryzen 9 7950X, DDR5 RAM\n- Nodes: Germany, Singapore, USA\n- Pricing: 2GB RAM - $4/mo, 4GB RAM - $8/mo', rules: 'Help clients check RAM, buy servers, check pricing, and connect.' },
+    bot_dev: { name: 'Bot Development', info: '- Services: Custom Discord, Telegram, and WhatsApp bots\n- Pricing: Quotes based on features (e.g. moderation, music, economy)\n- Delivery: 3 to 7 days', rules: 'Ask for feature requirements, timeline, budget, and book a review.' },
+    web_dev: { name: 'Web Development', info: '- Services: Responsive portfolios, e-commerce stores, and SaaS panels\n- Stack: React, Next.js, Node.js, Tailwind CSS\n- Setup: Vercel/VPS hosting, Domain configuration', rules: 'Gather requirements (pages needed, design preference), give estimates.' },
+    plugin_dev: { name: 'Minecraft Plugin Dev', info: '- Services: Custom Java plugins for Bukkit, Spigot, Paper, Purpur\n- Versions: Supported from 1.8 to 1.20+\n- Features: Custom minigames, GUI menus, database sync', rules: 'Ask for specific commands, features list, server version, and database needs.' },
+    it_support: { name: 'IT Support Service', info: '- Services: Tech troubleshooting, software installs, security audits\n- Pricing: Hourly rates or monthly SLA retainer', rules: 'Ask about the issue (Windows/Mac/Server), collect contact details.' },
     
-    bot_dev: `You are an AI Assistant for ${agentName} Bot Development.\n\nServices Info:\n- We develop custom Discord bots, Telegram bots, and WhatsApp bots.\n- Features: [List features, e.g., Music system, Moderation, API integrations, Economy]\n- Portfolio/Works: [Link to github or projects]\n\nInstructions:\n- Ask clients about their project requirements, features needed, budget, and timeline.\n- Answer queries about bot hosting, support, and future updates.\n- Guide them to book a consultation or request a quote.\n- Automatically detect the customer's language and reply in the same language or in Hinglish (Romanized Hindi) if appropriate.`,
+    // Food & Dining
+    restaurant: { name: 'Restaurant / Café', info: '- Products: Gourmet meals, fresh coffee, desserts\n- Open Hours: 11 AM - 11 PM\n- Delivery: Available via WhatsApp order', rules: 'Answer menu queries, handle table bookings, and coordinate delivery.' },
+    cafe: { name: 'Café / Coffee Shop', info: '- Products: Espresso, cappuccino, pastries, snacks\n- Open Hours: 7 AM - 9 PM\n- Wi-Fi: Free for customers', rules: 'Help with menu inquiries, daily specials, and quick pickup orders.' },
+    bakery: { name: 'Bakery & Cake Shop', info: '- Products: Custom birthday cakes, breads, cookies\n- Orders: Place custom cake orders 2 days in advance', rules: 'Ask for cake design, weight, flavor, writing on cake, delivery date.' },
+    pizza: { name: 'Pizza Delivery Shop', info: '- Products: Woodfired pizzas, garlic bread, beverages\n- Delivery: Free within 5km\n- Special: Buy 1 Get 1 on Wednesdays', rules: 'Take pizza toppings choices, crust preferences, address, and mobile.' },
+    sweet_shop: { name: 'Sweet Shop / Halwai', info: '- Products: Kaju Katli, Gulab Jamun, Laddu, Samosas, snacks\n- Orders: Bulk orders for weddings & parties available\n- Freshness: Prepared daily with pure ghee', rules: 'Answer sweets box weights pricing (e.g., 500g, 1kg), check sweets stock, take event catering queries.' },
+    ice_cream: { name: 'Ice Cream Parlor', info: '- Products: Sundaes, shakes, sugar-free flavors, waffles\n- Specials: Monthly flavor rotation', rules: 'List available scoop flavors, toppings, take custom shake orders.' },
+    catering: { name: 'Catering Service', info: '- Services: Event catering for weddings, parties, corporate\n- Capacity: Serves 20 to 1000 guests\n- Menu: Veg and Non-veg packages available', rules: 'Ask for guest count, menu preference, event type, date, and venue details.' },
     
-    web_dev: `You are an AI Assistant for ${agentName} Web Development.\n\nServices Info:\n- We build responsive websites, portfolios, e-commerce stores, and SaaS dashboards.\n- Tech Stack: [List stack, e.g., React, Next.js, Node.js, Tailwind CSS, databases]\n- Deliverables: Custom source code, deployment setup (Vercel/VPS), and SEO optimization.\n\nInstructions:\n- Answer questions about design timelines, technologies used, and estimates.\n- Gather project details (e.g., website type, pages needed, features) and capture their contact info.\n- Be professional and encouraging.\n- Automatically detect the customer's language and reply in the same language or in Hinglish (Romanized Hindi) if appropriate.`,
-
-    plugin_dev: `You are an AI Assistant for ${agentName} Minecraft Plugin Development.\n\nServices Info:\n- We develop custom Java plugins for Bukkit, Spigot, Paper, Purpur, and BungeeCord servers.\n- Server Versions: Supported from 1.8 to the latest version (1.20+).\n- Types: [E.g., Custom minigames, GUI menus, database syncing, command execution]\n\nInstructions:\n- Ask clients about their custom plugin features, commands, database storage needs, and server version.\n- Give estimated pricing based on feature complexity.\n- Automatically detect the customer's language and reply in the same language or in Hinglish (Romanized Hindi) if appropriate.`
+    // Local Shops
+    retail: { name: 'General Retail Shop', info: '- Products: Daily essentials, home utility goods\n- Open Hours: 9 AM - 9 PM\n- Payment: UPI, Cards, Cash', rules: 'Help clients check stock availability, store timings, and locate items.' },
+    clothing: { name: 'Clothing Boutique', info: '- Products: Trendy outfits, casual wear, custom tailoring\n- Sizing: S, M, L, XL, XXL\n- Return Policy: 7 days exchange with bill', rules: 'Help customers check sizing availability, new arrivals, and pricing.' },
+    grocery: { name: 'Grocery / Supermarket', info: '- Products: Fresh veggies, dairy, pantry staples, home goods\n- Delivery: Free home delivery on orders above $20', rules: 'Help clients check stock, place order lists, and confirm delivery address.' },
+    pharmacy: { name: 'Pharmacy / Medical Store', info: '- Products: Prescription medicines, first-aid, healthcare items\n- Policy: Prescriptions required for critical drugs', rules: 'Ask for a photo of the prescription, check medicine stock, calculate prices.' },
+    furniture: { name: 'Furniture Store', info: '- Products: Sofas, beds, dining sets, office desks\n- Delivery: Home assembly included', rules: 'Answer dimensions/wood type queries, custom sizing, delivery charges.' },
+    flower_shop: { name: 'Flower Shop / Florist', info: '- Products: Bouquets, roses, event decorations\n- Specials: Valentine & Anniversary custom wraps', rules: 'Ask for flower choices, event type, card message, delivery address.' },
+    book_store: { name: 'Book Store & Stationery', info: '- Products: Novels, school textbooks, school supplies\n- Specials: Pre-orders for upcoming releases', rules: 'Check book availability, author details, take school stationery list orders.' },
+    toy_store: { name: 'Toy Store', info: '- Products: Board games, action figures, soft toys, educational games', rules: 'Recommend toys by age group, check item stock, check pricing.' },
+    jewelry: { name: 'Jewelry Shop', info: '- Products: Gold, silver, diamonds, ornaments\n- Specials: Custom designs by goldsmith', rules: 'Guide customer on gold rates, check custom design timeline, book showroom visit.' },
+    mobile_repair: { name: 'Mobile & Laptop Repair', info: '- Services: Screen replacement, battery replacement, software repair\n- Turnaround: Same-day screen replacement', rules: 'Ask for device model, problem description, provide pricing estimate.' },
+    electronics: { name: 'Electronics Shop', info: '- Products: Smart TVs, audio systems, smart appliances\n- Warranty: 1-year brand warranty', rules: 'Check stock, compare specifications, discuss delivery and installation.' },
+    hardware: { name: 'Hardware & Tools Store', info: '- Products: Construction tools, paints, plumbing fittings\n- Delivery: Bulk transport available', rules: 'Check tool brands, paint shades availability, take bulk quote requests.' },
+    
+    // Services
+    salon: { name: 'Salon / Hairdresser', info: '- Services: Haircuts, styling, facials, bridal makeup\n- Appointments: Prior booking recommended', rules: 'Provide pricing list, ask for desired service, slot time, stylist name.' },
+    gym: { name: 'Gym / Fitness Trainer', info: '- Services: Personal training, cardio, weightlifting, diet plans\n- Timings: 5 AM - 10 PM', rules: 'Explain membership plans (monthly/yearly), book trial workout session.' },
+    real_estate: { name: 'Real Estate Agent', info: '- Services: Renting, buying, selling apartments, commercial spaces', rules: 'Ask for client budget, property type (flat/shop/villa), renting vs buying.' },
+    auto_repair: { name: 'Automobile Repair / Garage', info: '- Services: Car service, oil change, denting & painting, engine tuning\n- Booking: Pick up and drop available', rules: 'Ask for car model, required service, date, check slot availability.' },
+    photographer: { name: 'Photographer / Studio', info: '- Services: Wedding shoots, pre-wedding, portfolios, product shoots', rules: 'Check session availability, discuss themes, provide pricing packages.' },
+    cleaner: { name: 'Cleaning Services', info: '- Services: Deep house cleaning, office cleaning, sofa wash\n- Products: Eco-friendly sanitizers used', rules: 'Ask for number of rooms, total area (sqft), preferred cleaning date.' },
+    plumber: { name: 'Plumber / Handyman', info: '- Services: Leak repairs, bathroom fittings, pipe routing\n- Availability: Emergency calls', rules: 'Ask for details of the leak/problem, address, preferred visiting hours.' },
+    electrician: { name: 'Electrician', info: '- Services: Wiring, appliance repair, short circuit fixes\n- Availability: 24/7 emergency service', rules: 'Ask for issue details, address, urgency level, check technician availability.' },
+    event_planner: { name: 'Event Planner / Wedding', info: '- Services: Wedding decoration, DJ setups, venue bookings', rules: 'Ask for event type, guest count, wedding date, budget, and design theme.' },
+    car_wash: { name: 'Car Wash / Detailer', info: '- Services: Foam wash, interior vacuuming, ceramic coating', rules: 'Ask for car size (hatchback/SUV), preferred washing slot, package type.' },
+    laundry: { name: 'Laundry & Dry Cleaning', info: '- Services: Ironing, wash & fold, dry cleaning\n- Pickup: Free door pickup & delivery', rules: 'Schedule pickup slot, confirm dry cleaning price rates per item.' },
+    courier: { name: 'Courier & Logistics', info: '- Services: Domestic & International shipping, parcel pickup', rules: 'Ask for origin/destination pincodes, package weight, estimate delivery charge.' },
+    security: { name: 'Security Agency / Guards', info: '- Services: Residential guard, corporate security, event bouncers', rules: 'Ask for location type, shift timings (12/24 hrs), number of guards needed.' },
+    
+    // Professionals & Agency
+    legal: { name: 'Law Firm / Legal Consultant', info: '- Services: Corporate law, property verification, contracts drafting', rules: 'Schedule attorney consultation, ask about the legal domain.' },
+    accounting: { name: 'Accounting & Tax Advisor', info: '- Services: Bookkeeping, GST filing, Income tax return preparation', rules: 'Ask about individual vs business taxes, schedule appointment.' },
+    travel: { name: 'Travel Agency', info: '- Services: Flight tickets, holiday packages, visa assistance', rules: 'Ask for destination, travel dates, guest count, travel budget.' },
+    hotel: { name: 'Hotel / Guest House', info: '- Services: Single/Double rooms, suite, restaurant dining', rules: 'Check check-in/check-out dates, room availability, guest count.' },
+    pet_shop: { name: 'Pet Shop / Grooming', info: '- Products: Pet food, toys, dog grooming packages', rules: 'Ask for dog/cat breed, grooming slot, confirm vaccine status.' },
+    design_agency: { name: 'Graphic Design Studio', info: '- Services: Logo branding, social media posts, UI mockups', rules: 'Ask about required designs, source files preference, business category.' },
+    marketing: { name: 'Digital Marketing Agency', info: '- Services: Facebook/Google Ads, SEO, Social media management', rules: 'Ask about client target audience, monthly marketing budget, goal.' },
+    
+    // Education & Coaching
+    tutor: { name: 'Private Tutor / Coaching', info: '- Subjects: Maths, Science, English, coding lessons\n- Classes: 1st to 12th grade', rules: 'Ask for student class, subject, offline vs online preference.' },
+    dance_music: { name: 'Dance & Music Academy', info: '- Batches: Keyboard, Guitar, Classical singing, Hip-hop dance', rules: 'Check trial slot, age group of student, batch timing preference.' },
+    sports_coaching: { name: 'Sports / Cricket Academy', info: '- Services: Professional net sessions, expert coaches', rules: 'Schedule trial session, ask about student age, fitness level.' },
+    interior_design: { name: 'Interior Designer', info: '- Services: Modular kitchen, 3D space plans, living room decor', rules: 'Ask for carpet area, budget, style preference, venue location.' },
+    english_classes: { name: 'Language / IELTS Classes', info: '- Services: Spoken English, IELTS prep, personality development', rules: 'Book initial level assessment test, preferred batch timings.' },
+    counselor: { name: 'Career Counselor', info: '- Services: Career selection counseling, abroad study advice', rules: 'Schedule advice session, ask for student\'s current status.' }
   };
 
-  if (templates[type]) {
-    promptBox.value = templates[type];
-    const friendlyNames = {
-      hosting: 'Minecraft Hosting',
-      bot_dev: 'Bot Development',
-      web_dev: 'Web Development',
-      plugin_dev: 'Minecraft Plugin Development'
-    };
-    showToast(`${friendlyNames[type]} template loaded! Review and save.`);
+  const niche = niches[nicheKey];
+  if (niche) {
+    promptBox.value = `You are an AI Assistant for ${agentName} ${niche.name}.\n\nBusiness Info:\n${niche.info}\n\nInstructions:\n- Answer customer queries politely, naturally, and extremely concisely (1-2 sentences maximum per message). Avoid long paragraphs, bullet lists, or asking multiple questions at once. Keep responses short and conversational for WhatsApp chats.\n- ${niche.rules}\n- Automatically detect the customer's language and reply in the same language or in Hinglish (Romanized Hindi) if appropriate.`;
+    showToast(`${niche.name} template loaded! Review and save.`);
   }
 };
 
@@ -918,7 +967,7 @@ window.openChatHistory = async function(phone) {
   const modal = document.getElementById('chat-modal');
   
   title.innerText = `Chat with ${name} (${phone})`;
-  body.innerHTML = '<div class="flex items-center justify-center py-12"><div class="w-8 h-8 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div></div>';
+  body.innerHTML = '<div class="flex items-center justify-center py-20"><div class="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div></div>';
   modal.classList.remove('hidden');
   
   try {
@@ -930,29 +979,40 @@ window.openChatHistory = async function(phone) {
     
     body.innerHTML = '';
     if (history.length === 0) {
-      body.innerHTML = '<div class="text-center text-gray-500 py-12">No messages recorded in this session.</div>';
+      body.innerHTML = '<div class="text-center text-gray-500 py-16 text-sm">No messages recorded in this session.</div>';
       return;
     }
     
     history.forEach(msg => {
       const bubble = document.createElement('div');
       const formattedTime = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
       const isClient = msg.role === 'assistant' || msg.role === 'system';
       
       if (isClient) {
-        bubble.className = "flex flex-col items-end self-end max-w-[80%] my-1";
+        bubble.className = "flex flex-col items-end self-end max-w-[85%] my-1.5";
         bubble.innerHTML = `
-          <span class="text-[10px] text-gray-500 mb-1">AI Bot (${formattedTime})</span>
-          <div class="px-4 py-2.5 rounded-2xl bg-purple-600/80 text-white rounded-tr-none text-sm leading-relaxed whitespace-pre-wrap border border-purple-500/10">
+          <div class="flex items-baseline gap-1.5 mb-0.5">
+            <span class="text-[9px] text-gray-500">${formattedTime}</span>
+            <span class="text-[10px] font-bold text-purple-400">AI Bot</span>
+          </div>
+          <div class="px-4 py-2.5 rounded-2xl bg-gradient-to-br from-purple-600/90 to-indigo-600/90 text-white rounded-tr-none text-sm leading-relaxed whitespace-pre-wrap border border-purple-500/20 shadow-md">
             ${escapeHtml(msg.content)}
+            <div class="flex justify-end items-center gap-0.5 mt-1 -mr-1 opacity-70">
+              <span class="text-[8px] text-purple-200">sent</span>
+              <svg class="w-3 h-3 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
           </div>
         `;
       } else {
-        bubble.className = "flex flex-col items-start self-start max-w-[80%] my-1";
+        bubble.className = "flex flex-col items-start self-start max-w-[85%] my-1.5";
         bubble.innerHTML = `
-          <span class="text-[10px] text-gray-500 mb-1">${escapeHtml(name)} (${formattedTime})</span>
-          <div class="px-4 py-2.5 rounded-2xl bg-gray-800 text-gray-200 rounded-tl-none text-sm leading-relaxed whitespace-pre-wrap border border-white/5">
+          <div class="flex items-baseline gap-1.5 mb-0.5">
+            <span class="text-[10px] font-bold text-indigo-400">${escapeHtml(name)}</span>
+            <span class="text-[9px] text-gray-500">${formattedTime}</span>
+          </div>
+          <div class="px-4 py-2.5 rounded-2xl bg-gray-800/90 text-gray-200 rounded-tl-none text-sm leading-relaxed whitespace-pre-wrap border border-white/[0.06] shadow-md">
             ${escapeHtml(msg.content)}
           </div>
         `;
@@ -965,7 +1025,7 @@ window.openChatHistory = async function(phone) {
       body.scrollTop = body.scrollHeight;
     }, 50);
   } catch (err) {
-    body.innerHTML = '<div class="text-center text-red-400 py-12">Failed to load chat history.</div>';
+    body.innerHTML = '<div class="text-center text-red-400 py-16 text-sm">Failed to load chat history.</div>';
   }
 };
 
