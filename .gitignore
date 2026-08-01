@@ -6,10 +6,16 @@ auto.info*
 *auth_info*
 *auto.info*
 
-# Secret config and database
+# Secret config, environment files, and database
 config.yml
 .env
+.env.local
+.env.*
+!.env.example
 database.json
+database.json.tmp
+*.db
+*.sqlite
 
 # Dependencies
 node_modules/
@@ -21,9 +27,10 @@ yarn-error.log*
 logs/
 *.log
 
-# System files
+# System & temporary files
 .DS_Store
 Thumbs.db
+*.tmp
 
-# Instagram social media assets
+# Media & scratch assets
 instagram_slides/

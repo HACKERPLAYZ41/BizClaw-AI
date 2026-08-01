@@ -1,19 +1,22 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const CONFIG_PATH = path.resolve(process.cwd(), 'config.yml');
 
 const DEFAULT_CONFIG = `
 server:
   port: 3000
-  admin_username: "utkarsh"
-  admin_password: "2402"
-  jwt_secret: "merchant_session_signature_secure_19385"
+  admin_username: "${process.env.ADMIN_USERNAME || 'utkarsh'}"
+  admin_password: "${process.env.ADMIN_PASSWORD || '2402'}"
+  jwt_secret: "${process.env.JWT_SECRET || 'merchant_session_signature_secure_19385'}"
 
 ai:
-  global_gemini_api_key: ""
-  global_openai_api_key: ""
+  provider: "openrouter"
+  model: "nvidia/nemotron-3-super-120b-a12b:free"
 
 twilio:
   enabled: false

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BizClaw AI - SaaS Control Panel</title>
+  <title>BizClaw AI - All-in-One AI Marketing Platform for Local Businesses</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts Outfit & Inter -->
@@ -18,21 +18,21 @@
       font-family: 'Outfit', sans-serif;
     }
     .glass-card {
-      background: rgba(17, 24, 39, 0.65);
+      background: rgba(17, 24, 39, 0.7);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.07);
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
     .glass-input {
-      background: rgba(31, 41, 55, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(31, 41, 55, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       color: #f3f4f6;
       transition: all 0.3s ease;
     }
     .glass-input:focus {
       border-color: #a855f7;
-      box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+      box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25);
       outline: none;
     }
     ::-webkit-scrollbar {
@@ -46,9 +46,6 @@
       background: rgba(168, 85, 247, 0.4);
       border-radius: 9999px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(168, 85, 247, 0.6);
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
@@ -59,12 +56,10 @@
     <div class="glass-card w-full max-w-md p-8 rounded-2xl relative z-10 text-center flex flex-col gap-6">
       <div class="flex flex-col items-center gap-2">
         <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
-          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
+          <span class="text-2xl">🚀</span>
         </div>
-        <h2 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400 mt-2">BizClaw SaaS</h2>
-        <p id="auth-subtitle" class="text-sm text-gray-400">Unlock your automated WhatsApp Business panel</p>
+        <h2 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400 mt-2">BizClaw AI</h2>
+        <p id="auth-subtitle" class="text-sm text-gray-400">All-in-One AI Marketing Team for Local Businesses</p>
       </div>
 
       <!-- Toggle Buttons -->
@@ -81,7 +76,7 @@
       <form id="login-form" class="flex flex-col gap-4 text-left">
         <div>
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Username</label>
-          <input type="text" id="login-username" required placeholder="admin or username" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+          <input type="text" id="login-username" required placeholder="Business owner username" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Password</label>
@@ -98,8 +93,8 @@
       <!-- Register Form -->
       <form id="register-form" class="hidden flex flex-col gap-4 text-left">
         <div>
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Client Username</label>
-          <input type="text" id="register-username" required placeholder="Create custom username" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Username</label>
+          <input type="text" id="register-username" required placeholder="Create business username" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Password</label>
@@ -110,7 +105,7 @@
           <input type="text" id="register-key" required placeholder="XXXX-XXXX-XXXX" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm font-mono uppercase text-center tracking-wider" />
         </div>
         <div id="register-error" class="hidden text-xs text-red-400 bg-red-950/30 border border-red-500/20 px-4 py-2 rounded-xl">
-          Invalid key or username already taken.
+          Invalid key or username taken.
         </div>
         <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-semibold text-white shadow-lg shadow-purple-500/25 transition duration-300">
           Activate & Register
@@ -123,30 +118,28 @@
   <div id="dashboard-container" class="hidden flex-1 flex flex-col">
     
     <!-- Header / Navbar -->
-    <header class="border-b border-white/5 bg-gray-950/40 backdrop-blur-md sticky top-0 z-30">
+    <header class="border-b border-white/5 bg-gray-950/60 backdrop-blur-md sticky top-0 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         <!-- Logo -->
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/10">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/20">
+            <span class="text-xl">🚀</span>
           </div>
           <div class="flex flex-col">
             <span class="text-base font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">BizClaw AI</span>
-            <span id="role-badge" class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Client View</span>
+            <span id="role-badge" class="text-[10px] text-purple-400 uppercase font-bold tracking-wider">AI Marketing Platform</span>
           </div>
         </div>
 
-        <!-- Navigation Tabs (Dynamically filled via dashboard.js) -->
+        <!-- Navigation Tabs -->
         <nav id="nav-tabs" class="hidden md:flex space-x-1">
-          <!-- Populated dynamically: client views vs owner views -->
+          <!-- Populated dynamically via dashboard.js -->
         </nav>
 
         <!-- Right Side Actions -->
         <div class="flex items-center gap-4">
-          <button id="logout-btn" class="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-950/20 transition duration-150" title="Lock Panel">
+          <button id="logout-btn" class="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-950/20 transition duration-150" title="Logout">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
@@ -166,551 +159,396 @@
       <!-- Toast Alert Notify -->
       <div id="toast" class="hidden fixed bottom-5 right-5 z-50 glass-card px-6 py-4 rounded-xl flex items-center gap-3 transition-all duration-300 transform translate-y-10 opacity-0">
         <span id="toast-icon"></span>
-        <span id="toast-message" class="text-sm font-medium text-gray-200">Settings saved!</span>
+        <span id="toast-message" class="text-sm font-medium text-gray-200">Action completed!</span>
       </div>
 
       <!-- ================= CLIENT TABS ================= -->
 
-      <!-- TAB: WHATSAPP STATUS -->
-      <section id="tab-status" class="tab-content">
-        <div class="flex flex-col gap-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Connection Status Card -->
-          <div class="glass-card p-6 rounded-2xl flex flex-col justify-between min-h-[220px]">
+      <!-- TAB 1: BUSINESS ONBOARDING WIZARD -->
+      <section id="tab-onboarding" class="tab-content">
+        <div class="max-w-4xl mx-auto glass-card p-8 rounded-2xl flex flex-col gap-6">
+          <div class="border-b border-white/5 pb-4">
+            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+              <span>📋</span> Business Onboarding & Profile Setup
+            </h2>
+            <p class="text-sm text-gray-400 mt-1">Tell your AI Marketing Team about your local business so they can write accurate posts and handle customer chats.</p>
+          </div>
+
+          <form id="onboarding-form" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <h3 class="text-lg font-semibold text-gray-300">Agent Connection</h3>
-              <p class="text-xs text-gray-400 mt-1">Live instance pairing state</p>
-            </div>
-            
-            <div class="my-4 flex items-center gap-4">
-              <div id="status-pulse" class="w-5 h-5 rounded-full flex items-center justify-center bg-gray-600/30">
-                <div id="status-pulse-core" class="w-2.5 h-2.5 rounded-full bg-gray-500"></div>
-              </div>
-              <div>
-                <span id="status-text" class="text-xl font-bold tracking-wide uppercase text-gray-400">Disconnected</span>
-                <p id="status-subtext" class="text-xs text-gray-500">Server instance offline.</p>
-              </div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Business Name *</label>
+              <input type="text" id="ob-name" required placeholder="e.g. Royal Unisex Salon & Spa" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
             </div>
 
-            <div class="flex gap-3">
-              <button id="wa-logout-btn" class="hidden px-4 py-2 text-xs font-semibold text-red-400 hover:text-white bg-red-950/20 border border-red-500/20 hover:bg-red-600 rounded-xl transition duration-150">
-                Force Disconnect WhatsApp
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Business Category *</label>
+              <select id="ob-category" required class="w-full glass-input px-4 py-2.5 rounded-xl text-sm">
+                <option value="Salon & Spa">Salon & Spa</option>
+                <option value="Gym & Fitness Center">Gym & Fitness Center</option>
+                <option value="Medical Clinic / Dental">Medical Clinic / Dental</option>
+                <option value="Restaurant & Cafe">Restaurant & Cafe</option>
+                <option value="Bakery & Confectionery">Bakery & Confectionery</option>
+                <option value="Automobile Repair / Garage">Automobile Repair / Garage</option>
+                <option value="Pest Control Services">Pest Control Services</option>
+                <option value="Yoga & Wellness Studio">Yoga & Wellness Studio</option>
+                <option value="Retail & Boutique">Retail & Boutique</option>
+                <option value="Cleaning & Plumbing">Cleaning & Handyman Services</option>
+              </select>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Services & Offerings *</label>
+              <textarea id="ob-services" rows="3" required placeholder="e.g. Haircut, Hair Coloring, Facial, Keratin Treatment, Manicure" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Pricing & Special Offers</label>
+              <input type="text" id="ob-pricing" placeholder="e.g. Haircuts start at ₹250. 20% off on first booking!" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Opening Hours & Days</label>
+              <input type="text" id="ob-hours" placeholder="e.g. Open daily 9:00 AM - 9:00 PM (Closed Mondays)" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Store Address / City</label>
+              <input type="text" id="ob-location" placeholder="e.g. MG Road, Sector 14, Gurgaon" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">WhatsApp Contact Number</label>
+              <input type="text" id="ob-phone" placeholder="e.g. +919876543210" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Google Business Profile URL / Maps Link</label>
+              <input type="url" id="ob-gbplink" placeholder="https://maps.app.goo.gl/..." class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Target Local SEO Keywords</label>
+              <input type="text" id="ob-keywords" placeholder="e.g. best salon in gurgaon, haircut near me, bridal makeup" class="w-full glass-input px-4 py-2.5 rounded-xl text-sm" />
+            </div>
+
+            <div class="sm:col-span-2 flex justify-end">
+              <button type="submit" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-bold text-white shadow-lg shadow-purple-500/20 transition">
+                Save & Update AI Agents
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- TAB 2: GOOGLE BUSINESS PROFILE AGENT -->
+      <section id="tab-gbp" class="tab-content hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <!-- Post Generator Form -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>📍</span> Google Post Generator
+            </h3>
+            <p class="text-xs text-gray-400">Generate SEO-optimized Google Business posts powered by OpenRouter NVIDIA Nemotron model.</p>
+
+            <form id="gbp-post-form" class="flex flex-col gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Post Topic / Offer</label>
+                <input type="text" id="gbp-topic" required placeholder="e.g. Weekend Special 20% Off" class="w-full glass-input px-3 py-2.5 rounded-xl text-sm" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Tone</label>
+                <select id="gbp-tone" class="w-full glass-input px-3 py-2.5 rounded-xl text-sm">
+                  <option value="engaging">Engaging & Friendly</option>
+                  <option value="urgent">Urgent / Limited Time Deal</option>
+                  <option value="professional">Professional & Clean</option>
+                </select>
+              </div>
+
+              <button type="submit" id="btn-gen-gbp" class="py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-semibold text-white transition shadow-md shadow-purple-500/20">
+                Generate Google Post
+              </button>
+            </form>
+
+            <hr class="border-white/5 my-2">
+
+            <div class="flex flex-col gap-2">
+              <h4 class="text-sm font-semibold text-purple-400">💡 Local Keyword & Review Tools</h4>
+              <button onclick="requestLocalKeywords()" class="py-2.5 px-4 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 border border-white/5 text-left flex items-center justify-between">
+                <span>Analyze Local SEO Keywords</span>
+                <span>🔍</span>
+              </button>
+              <button onclick="requestReviewRequestLink()" class="py-2.5 px-4 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 border border-white/5 text-left flex items-center justify-between">
+                <span>Generate Review Request Message</span>
+                <span>⭐</span>
               </button>
             </div>
           </div>
 
-          <!-- Quota Limits & Expiry Indicators -->
-          <div class="glass-card p-6 rounded-2xl lg:col-span-2 flex flex-col justify-between gap-4">
+          <!-- Output & History Pane -->
+          <div class="glass-card p-6 rounded-2xl lg:col-span-2 flex flex-col gap-6">
             <div>
-              <h3 class="text-lg font-semibold text-gray-300">Subscription Quotas</h3>
-              <p class="text-xs text-gray-400 mt-1">Details generated under your active license key</p>
+              <h3 class="text-lg font-bold text-white">Generated Google Business Posts</h3>
+              <p class="text-xs text-gray-400">Copy posts directly to your Google Business Profile page.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 my-2">
-              <!-- Message Quota Meter -->
-              <div>
-                <div class="flex justify-between items-baseline mb-1">
-                  <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Messages Limit</span>
-                  <span id="quota-text" class="text-sm font-bold text-white">0 / 0</span>
-                </div>
-                <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden border border-white/5">
-                  <div id="quota-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-                <p class="text-[10px] text-gray-500 mt-1">Pauses chatbot reply actions if quota is filled.</p>
+            <div id="gbp-output-box" class="hidden p-5 rounded-xl bg-purple-950/20 border border-purple-500/30 flex flex-col gap-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Latest AI Generated Post</span>
+                <button onclick="copyGBPOutput()" class="px-3 py-1 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-semibold text-white">Copy Text</button>
               </div>
-
-              <!-- Subscription Expiration Info -->
-              <div class="flex flex-col justify-center">
-                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Time Remaining</span>
-                <span id="expiry-text" class="text-base font-bold text-white mt-1">Loading...</span>
-                <p class="text-[10px] text-gray-500 mt-1">Contact your distributor to renew or extend keys.</p>
-              </div>
+              <p id="gbp-output-text" class="text-sm text-gray-200 whitespace-pre-line leading-relaxed font-sans"></p>
             </div>
 
-            <div class="border-t border-white/5 pt-3 grid grid-cols-2 gap-4 text-center">
-              <div>
-                <span class="text-xs text-gray-500">Leads Captured</span>
-                <p id="stat-total-leads" class="text-xl font-bold text-white">0</p>
-              </div>
-              <div>
-                <span class="text-xs text-gray-500">Escalation Pauses</span>
-                <p id="stat-urgent-leads" class="text-xl font-bold text-red-400">0</p>
-              </div>
+            <!-- History Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400">
+                    <th class="px-4 py-3">Topic</th>
+                    <th class="px-4 py-3">Generated Post Content</th>
+                    <th class="px-4 py-3">Date</th>
+                  </tr>
+                </thead>
+                <tbody id="gbp-posts-body" class="divide-y divide-white/5 text-xs">
+                  <!-- Dynamic Posts -->
+                </tbody>
+              </table>
             </div>
           </div>
-        </div>
-
-        <!-- Dynamic WhatsApp QR Container -->
-        <div class="glass-card p-8 rounded-2xl flex flex-col items-center justify-center min-h-[380px] text-center">
-          <div id="qr-loading" class="flex flex-col items-center gap-3">
-            <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-sm text-gray-400 mt-2">Checking device login state...</p>
-          </div>
-
-          <div id="qr-container" class="hidden flex-col items-center gap-6">
-            <h3 class="text-xl font-bold">Connect your WhatsApp</h3>
-            <p class="text-sm text-gray-400 max-w-md">Open WhatsApp -> Menu -> Linked Devices and scan this QR code to start automated responses.</p>
-            
-            <div class="p-4 bg-white rounded-xl shadow-lg inline-block">
-              <img id="qr-image" src="" alt="WhatsApp QR Code" class="w-60 h-60" />
-            </div>
-            
-            <p class="text-xs text-purple-400 animate-pulse">Pairing code refreshes automatically. Scan quickly.</p>
-          </div>
-
-          <div id="connected-banner" class="hidden flex-col items-center gap-4">
-            <div class="w-16 h-16 rounded-full bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 class="text-2xl font-bold text-white">Bot instance is online</h3>
-            <p class="text-sm text-gray-400 max-w-md">Your WhatsApp bot is connected and actively listening for customer queries.</p>
-          </div>
-        </div>
         </div>
       </section>
 
-      <!-- TAB: AI CONFIGURATION -->
-      <section id="tab-config" class="tab-content hidden">
-        <form id="config-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- TAB 3: REVIEWS & FEEDBACK AGENT -->
+      <section id="tab-reviews" class="tab-content hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          <div class="lg:col-span-2 flex flex-col gap-6">
-            <!-- AI Engine -->
-            <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
-              <h3 class="text-lg font-semibold text-gray-300 pb-2 border-b border-white/5">AI Engine Settings</h3>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Active AI Provider</label>
-                  <select id="config-ai-provider" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
-                    <option value="gemini">Google Gemini</option>
-                    <option value="openai">OpenAI (ChatGPT)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Creativity (Temperature)</label>
-                  <div class="flex items-center gap-3 py-1">
-                    <input type="range" id="config-ai-temperature" min="0" max="1" step="0.1" class="flex-1 accent-purple-500" />
-                    <span id="temp-val" class="text-sm font-semibold text-purple-400 w-8 text-right">0.7</span>
-                  </div>
-                </div>
-              </div>
+          <!-- Reply Drafter Tool -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>⭐</span> Review Auto-Responder
+            </h3>
+            <p class="text-xs text-gray-400">Draft polite, brand-safe responses to Google/Web customer reviews.</p>
 
-              <!-- Gemini Subpanel -->
-              <div id="panel-gemini" class="flex flex-col gap-4">
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Gemini API Key</label>
-                  <input type="password" id="config-gemini-key" placeholder="Client Custom Key (Optional fallback to System API key)" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Gemini Model</label>
-                  <select id="config-gemini-model" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
-                    <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-                    <option value="gemini-2.5-pro">gemini-2.5-pro</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- OpenAI Subpanel -->
-              <div id="panel-openai" class="hidden flex flex-col gap-4">
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">OpenAI API Key</label>
-                  <input type="password" id="config-openai-key" placeholder="Client Custom Key (Optional fallback to System API key)" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">OpenAI Model</label>
-                  <select id="config-openai-model" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
-                    <option value="gpt-4o-mini">gpt-4o-mini</option>
-                    <option value="gpt-4o">gpt-4o</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <!-- Prompts and behaviors -->
-            <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
-              <h3 class="text-lg font-semibold text-gray-300 pb-2 border-b border-white/5">Bot Role & Rules</h3>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Agent Name (Public)</label>
-                  <input type="text" id="config-agent-name" placeholder="BizClaw AI" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
-                </div>
-                <div class="flex items-center gap-2 pt-6">
-                  <input type="checkbox" id="config-lead-capture" class="w-4 h-4 rounded text-purple-600 bg-gray-800 border-gray-700 focus:ring-purple-500 focus:ring-offset-gray-900" />
-                  <label for="config-lead-capture" class="text-sm text-gray-300 font-medium select-none">Auto CRM Lead Capture</label>
-                </div>
+            <form id="review-reply-form" class="flex flex-col gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Reviewer Name</label>
+                <input type="text" id="rev-name" required placeholder="e.g. Rahul Sharma" class="w-full glass-input px-3 py-2.5 rounded-xl text-sm" />
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">AI Prompts Core Instructions</label>
-                <!-- Quick Templates Helper Dropdown -->
-                <div class="flex gap-2 mb-2.5 flex-wrap items-center">
-                  <span class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mr-1">Load Template:</span>
-                  <select onchange="applyNicheTemplate(this.value); this.value='';" class="glass-input px-2.5 py-1 rounded text-xs text-gray-300 max-w-[280px] cursor-pointer">
-                    <option value="" disabled selected>-- Select from 50 Business Niches --</option>
-                    
-                    <optgroup label="Tech & Hosting Services">
-                      <option value="hosting">Minecraft Hosting</option>
-                      <option value="bot_dev">Bot Development</option>
-                      <option value="web_dev">Web Development</option>
-                      <option value="plugin_dev">Minecraft Plugin Dev</option>
-                      <option value="it_support">IT Support Service</option>
-                    </optgroup>
-                    
-                    <optgroup label="Food & Dining">
-                      <option value="restaurant">Restaurant / Café</option>
-                      <option value="cafe">Café / Coffee Shop</option>
-                      <option value="bakery">Bakery & Cake Shop</option>
-                      <option value="pizza">Pizza Delivery Shop</option>
-                      <option value="sweet_shop">Sweet Shop / Halwai (Utkarsh Special)</option>
-                      <option value="ice_cream">Ice Cream Parlor</option>
-                      <option value="catering">Catering Service</option>
-                    </optgroup>
-                    
-                    <optgroup label="Retail & Goods Shop">
-                      <option value="retail">General Retail Shop</option>
-                      <option value="clothing">Clothing / Fashion Boutique</option>
-                      <option value="grocery">Grocery / Supermarket</option>
-                      <option value="pharmacy">Pharmacy / Medical Store</option>
-                      <option value="furniture">Furniture Store</option>
-                      <option value="flower_shop">Flower Shop / Florist</option>
-                      <option value="book_store">Book Store & Stationery</option>
-                      <option value="toy_store">Toy Store</option>
-                      <option value="jewelry">Jewelry Shop</option>
-                      <option value="electronics">Electronics Shop</option>
-                      <option value="hardware">Hardware & Tools Store</option>
-                    </optgroup>
-                    
-                    <optgroup label="Daily & Home Services">
-                      <option value="salon">Salon / Hairdresser</option>
-                      <option value="gym">Gym / Fitness Trainer</option>
-                      <option value="auto_repair">Automobile Repair / Garage</option>
-                      <option value="cleaner">Cleaning Services</option>
-                      <option value="plumber">Plumber / Handyman</option>
-                      <option value="electrician">Electrician</option>
-                      <option value="car_wash">Car Wash / Detailer</option>
-                      <option value="laundry">Laundry & Dry Cleaning</option>
-                      <option value="courier">Courier & Logistics</option>
-                    </optgroup>
-                    
-                    <optgroup label="Professional & Studio Agency">
-                      <option value="real_estate">Real Estate Agent</option>
-                      <option value="photographer">Photographer / Studio</option>
-                      <option value="event_planner">Event Planner / Wedding</option>
-                      <option value="security">Security Agency / Guards</option>
-                      <option value="legal">Law Firm / Legal Consultant</option>
-                      <option value="accounting">Accounting & Tax Advisor</option>
-                      <option value="travel">Travel Agency</option>
-                      <option value="hotel">Hotel / Guest House</option>
-                      <option value="pet_shop">Pet Shop / Grooming</option>
-                      <option value="design_agency">Graphic Design Studio</option>
-                      <option value="marketing">Digital Marketing Agency</option>
-                    </optgroup>
-                    
-                    <optgroup label="Education & Coaching">
-                      <option value="tutor">Private Tutor / Coaching</option>
-                      <option value="dance_music">Dance & Music Academy</option>
-                      <option value="sports_coaching">Sports / Cricket Academy</option>
-                      <option value="interior_design">Interior Designer</option>
-                      <option value="english_classes">Language / IELTS Classes</option>
-                      <option value="counselor">Career Counselor</option>
-                    </optgroup>
-                  </select>
-                </div>
-                <textarea id="config-agent-prompt" rows="5" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm font-mono" placeholder="Set FAQ responses and store details..."></textarea>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Star Rating</label>
+                <select id="rev-rating" class="w-full glass-input px-3 py-2.5 rounded-xl text-sm">
+                  <option value="5">⭐⭐⭐⭐⭐ (5 Stars - Excellent)</option>
+                  <option value="4">⭐⭐⭐⭐ (4 Stars - Good)</option>
+                  <option value="3">⭐⭐⭐ (3 Stars - Average)</option>
+                  <option value="2">⭐⭐ (2 Stars - Poor)</option>
+                  <option value="1">⭐ (1 Star - Terrible / Escalation)</option>
+                </select>
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Escalation Keywords (Comma separated)</label>
-                <input type="text" id="config-escalation-keys" placeholder="human, support, manager, help" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Review Text</label>
+                <textarea id="rev-text" rows="3" required placeholder="Enter customer review text..." class="w-full glass-input px-3 py-2.5 rounded-xl text-sm"></textarea>
               </div>
-              
-              <!-- Client Twilio Configuration -->
-              <div class="border-t border-white/5 pt-6 mt-6">
-                <h4 class="text-sm font-semibold text-white mb-4">📞 Twilio Outbound Voice Call Alerts</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div class="flex items-center gap-2 sm:col-span-2 mb-2">
-                    <input type="checkbox" id="config-twilio-enabled" class="w-4 h-4 rounded text-purple-600 bg-gray-800 border-gray-700 focus:ring-purple-500 focus:ring-offset-gray-900" />
-                    <label for="config-twilio-enabled" class="text-sm text-gray-300 font-medium select-none">Enable Voice Call Alerts on Support Requests</label>
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Twilio Account SID</label>
-                    <input type="text" id="config-twilio-sid" placeholder="AC..." class="w-full glass-input px-3 py-2 rounded-lg text-xs" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Twilio Auth Token</label>
-                    <input type="password" id="config-twilio-token" placeholder="Your Twilio Token" class="w-full glass-input px-3 py-2 rounded-lg text-xs font-mono" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Twilio Outbound Number</label>
-                    <input type="text" id="config-twilio-number" placeholder="+1XXXXXXXXXX" class="w-full glass-input px-3 py-2 rounded-lg text-xs" />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Owner Phone Number (Receive Call)</label>
-                    <input type="text" id="config-twilio-owner" placeholder="+91XXXXXXXXXX" class="w-full glass-input px-3 py-2 rounded-lg text-xs" />
-                  </div>
-                </div>
-              </div>
-            </div>
+
+              <button type="submit" class="py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-semibold text-white transition shadow-md shadow-purple-500/20">
+                Draft AI Reply
+              </button>
+            </form>
           </div>
 
-          <!-- Side configs: Pterodactyl and security -->
-          <div class="flex flex-col gap-6">
-            <!-- Pterodactyl Link (Hidden for Client Ease) -->
-            <div class="hidden glass-card p-6 rounded-2xl flex flex-col gap-4">
-              <h3 class="text-lg font-semibold text-gray-300 pb-2 border-b border-white/5">Pterodactyl linking</h3>
-              
-              <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Panel URL</label>
-                <input type="text" id="config-ptero-url" placeholder="https://panel.blockcode.in" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Client API Key</label>
-                <input type="password" id="config-ptero-key" placeholder="ptlc_xxxxxxxx" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Server ID</label>
-                <input type="text" id="config-ptero-id" placeholder="xxxx-xxxx-xxxx" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm" />
-              </div>
+          <!-- History & Escalations Pane -->
+          <div class="glass-card p-6 rounded-2xl lg:col-span-2 flex flex-col gap-6">
+            <div>
+              <h3 class="text-lg font-bold text-white">Review History & Support Escalations</h3>
+              <p class="text-xs text-gray-400">Reviews rated 1-3 stars are automatically flagged for owner intervention.</p>
             </div>
 
-            <!-- Save Buttons -->
-            <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-bold text-white shadow-lg shadow-purple-500/10 transition duration-300 flex items-center justify-center gap-2">
-              Save AI Settings
-            </button>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400">
+                    <th class="px-4 py-3">Reviewer</th>
+                    <th class="px-4 py-3">Rating</th>
+                    <th class="px-4 py-3">Review Text</th>
+                    <th class="px-4 py-3">AI Response</th>
+                    <th class="px-4 py-3">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="reviews-table-body" class="divide-y divide-white/5 text-xs">
+                  <!-- Dynamic Reviews -->
+                </tbody>
+              </table>
+            </div>
           </div>
-        </form>
+        </div>
       </section>
 
-      <!-- TAB: CLIENT CRM LEADS -->
+      <!-- TAB 4: WHATSAPP ASSISTANT AGENT -->
+      <section id="tab-status" class="tab-content hidden">
+        <div class="flex flex-col gap-6">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="glass-card p-6 rounded-2xl flex flex-col justify-between min-h-[220px]">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-300">WhatsApp Agent Status</h3>
+                <p class="text-xs text-gray-400 mt-1">Live instance pairing state</p>
+              </div>
+              
+              <div class="my-4 flex items-center gap-4">
+                <div id="status-pulse" class="w-5 h-5 rounded-full flex items-center justify-center bg-gray-600/30">
+                  <div id="status-pulse-core" class="w-2.5 h-2.5 rounded-full bg-gray-500"></div>
+                </div>
+                <div>
+                  <span id="status-text" class="text-xl font-bold tracking-wide uppercase text-gray-400">Disconnected</span>
+                  <p id="status-subtext" class="text-xs text-gray-500">Server instance offline.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-3">
+                <button id="wa-logout-btn" class="hidden px-4 py-2 text-xs font-semibold text-red-400 hover:text-white bg-red-950/20 border border-red-500/20 hover:bg-red-600 rounded-xl transition duration-150">
+                  Force Disconnect WhatsApp
+                </button>
+              </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl lg:col-span-2 flex flex-col justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-300">Subscription & Message Quota</h3>
+                <p class="text-xs text-gray-400 mt-1">Message usage metrics for customer assistant</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 my-2">
+                <div>
+                  <div class="flex justify-between items-baseline mb-1">
+                    <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Messages Counter</span>
+                    <span id="quota-text" class="text-sm font-bold text-white">0 / 0</span>
+                  </div>
+                  <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden border border-white/5">
+                    <div id="quota-bar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <div class="flex flex-col justify-center">
+                  <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Time Remaining</span>
+                  <span id="expiry-text" class="text-base font-bold text-white mt-1">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- QR Pairing -->
+          <div class="glass-card p-8 rounded-2xl flex flex-col items-center justify-center min-h-[350px] text-center">
+            <div id="qr-loading" class="flex flex-col items-center gap-3">
+              <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-sm text-gray-400 mt-2">Checking device login state...</p>
+            </div>
+
+            <div id="qr-container" class="hidden flex-col items-center gap-6">
+              <h3 class="text-xl font-bold">Connect your WhatsApp</h3>
+              <p class="text-sm text-gray-400 max-w-md">Open WhatsApp -> Menu -> Linked Devices and scan this QR code to activate 24/7 customer assistant.</p>
+              <div class="p-4 bg-white rounded-xl shadow-lg inline-block">
+                <img id="qr-image" src="" alt="WhatsApp QR Code" class="w-60 h-60" />
+              </div>
+            </div>
+
+            <div id="connected-banner" class="hidden flex-col items-center gap-4">
+              <div class="w-16 h-16 rounded-full bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold text-white">WhatsApp Agent Active</h3>
+              <p class="text-sm text-gray-400 max-w-md">Responding to customer inquiries cleanly without duplicate links.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: LEAD MANAGER CRM -->
       <section id="tab-leads" class="tab-content hidden">
         <div class="glass-card rounded-2xl overflow-hidden">
-          <div class="p-6 border-b border-white/5 bg-gray-900/20">
-            <h3 class="text-lg font-semibold text-white">Leads CRM Database</h3>
-            <p class="text-xs text-gray-400 mt-1">Client queries parsed and registered in real-time</p>
+          <div class="p-6 border-b border-white/5 bg-gray-900/20 flex justify-between items-center">
+            <div>
+              <h3 class="text-lg font-semibold text-white">Lead Manager CRM</h3>
+              <p class="text-xs text-gray-400 mt-1">Customer inquiries captured automatically from WhatsApp & Web</p>
+            </div>
           </div>
           
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400 tracking-wider">
-                  <th class="px-6 py-4">Client</th>
+                <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400">
+                  <th class="px-6 py-4">Customer Name</th>
                   <th class="px-6 py-4">Phone Number</th>
-                  <th class="px-6 py-4">AI Inquiry Interest</th>
-                  <th class="px-6 py-4">Captured At</th>
+                  <th class="px-6 py-4">AI Interest Summary</th>
+                  <th class="px-6 py-4">Captured Date</th>
                   <th class="px-6 py-4">Status</th>
                   <th class="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody id="leads-table-body" class="divide-y divide-white/5 text-sm">
-                <!-- Dynamic CRM leads -->
+                <!-- Dynamic Leads -->
               </tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <!-- TAB: CLIENT DOCUMENTATION GUIDE -->
-      <section id="tab-guide" class="tab-content hidden">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <!-- Card 1: WhatsApp Connection -->
-          <div class="glass-card p-6 rounded-2xl flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-              <span class="text-2xl">📱</span>
-              <h3 class="text-base font-semibold text-white">WhatsApp Device Connection</h3>
+      <!-- TAB 6: OPENROUTER MULTI-KEY POOL MONITOR -->
+      <section id="tab-keys" class="tab-content hidden">
+        <div class="glass-card p-6 rounded-2xl flex flex-col gap-6">
+          <div class="border-b border-white/5 pb-4 flex justify-between items-center">
+            <div>
+              <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <span>🔑</span> OpenRouter Multi-Key Pool & Load Balancer
+              </h3>
+              <p class="text-xs text-gray-400 mt-1">Monitor API keys, request rates (Max 20 req/min limit per key), and failover status.</p>
             </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              BizClaw AI uses multiple concurrent container sockets (Baileys) to run client bots concurrently. You don't need to keep any browser or tab open to run your assistant.
-            </p>
-            <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
-              <li>Open your dashboard and go to the <strong>WhatsApp Status</strong> tab.</li>
-              <li>Wait for the secure pairing QR code to generate.</li>
-              <li>Open WhatsApp on your mobile phone, open settings, and select <strong>Linked Devices</strong>.</li>
-              <li>Tap <strong>Link a Device</strong> and scan the QR code.</li>
-              <li>Once paired, your status changes to a green <strong>Connected</strong> tag. The bot will automatically auto-resume whenever the server starts!</li>
-            </ul>
+            <button onclick="refreshKeyStats()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-xs font-semibold text-white">Refresh Status</button>
           </div>
 
-          <!-- Card 2: AI Settings & Custom Prompts -->
-          <div class="glass-card p-6 rounded-2xl flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-              <span class="text-2xl">🤖</span>
-              <h3 class="text-base font-semibold text-white">AI Agent Settings & Prompting</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 text-center">
+              <span class="text-xs text-gray-400 font-semibold uppercase">Total Pool Keys</span>
+              <p id="key-total" class="text-3xl font-bold text-purple-400 mt-1">0</p>
             </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              Configure your chatbot's character, FAQ replies, and business details. Load custom templates to save setup time.
-            </p>
-            <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
-              <li>Click the <strong>Load Template</strong> dropdown and select from 50 pre-built business niche templates (such as Minecraft Hosting, Sweet Shop, Gym, etc.).</li>
-              <li>Customize the generated text to insert your own product names, plans, pricing, and timing details.</li>
-              <li><strong>Token Protection Guidelines:</strong> Keep prompt rules instructing the AI to answer in 1 to 2 sentences maximum. This keeps WhatsApp chats natural and saves your package message quota limits!</li>
-            </ul>
-          </div>
-
-          <!-- Card 3: Twilio Voice Call Alerts -->
-          <div class="glass-card p-6 rounded-2xl flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-              <span class="text-2xl">📞</span>
-              <h3 class="text-base font-semibold text-white">Twilio Voice Call Setup</h3>
+            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 text-center">
+              <span class="text-xs text-gray-400 font-semibold uppercase">Active Keys</span>
+              <p id="key-active" class="text-3xl font-bold text-emerald-400 mt-1">0</p>
             </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              Enable your bot to make outbound phone calls to your mobile phone when customers ask for support or place order reservations.
-            </p>
-            <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
-              <li>Log in to your <strong>Twilio Dashboard</strong> and copy your <strong>Account SID</strong> and <strong>Auth Token</strong>.</li>
-              <li>Buy or reserve an active Twilio outbound phone number.</li>
-              <li>Insert these details into the fields in the dashboard settings and toggle <strong>Enable Voice Call Alerts</strong>.</li>
-              <li>In the <strong>Owner Number</strong> field, put your own mobile number with country code (e.g. <code>+91XXXXXXXXXX</code>).</li>
-              <li>Twilio's Text-to-Speech (TTS) engine will automatically synthesize a natural voice call warning you of active client tickets!</li>
-            </ul>
-          </div>
-
-          <!-- Card 4: CRM Leads & Chat Inspector -->
-          <div class="glass-card p-6 rounded-2xl flex flex-col gap-3">
-            <div class="flex items-center gap-3">
-              <span class="text-2xl">📊</span>
-              <h3 class="text-base font-semibold text-white">CRM Leads & Live Chat</h3>
+            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 text-center">
+              <span class="text-xs text-gray-400 font-semibold uppercase">Cooling Down Keys</span>
+              <p id="key-cooldown" class="text-3xl font-bold text-amber-400 mt-1">0</p>
             </div>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              BizClaw AI parses all customer chats to detect leads and automatically logs them inside the CRM table.
-            </p>
-            <ul class="text-xs text-gray-300 space-y-2 list-disc list-inside">
-              <li>Customer inquiries automatically generate a lead with an AI-generated interest summary.</li>
-              <li>Click <strong>View Chat</strong> in the CRM table to inspect the read-only WhatsApp message log.</li>
-              <li>Set status to "Resolved" to resume automatic AI responses for that customer thread.</li>
-            </ul>
-          </div>
-
-        </div>
-      </section>
-
-
-      <!-- TAB: LIVE CONSOLE (CLIENT & ADMIN SHARED) -->
-      <section id="tab-console" class="tab-content hidden">
-        <div class="flex flex-col gap-4">
-        <div class="glass-card p-4 rounded-2xl flex items-center justify-between">
-          <div>
-            <h3 class="text-base font-semibold text-white">Server Terminal Logs</h3>
-            <p class="text-xs text-gray-400">Streamed runtime status lines</p>
-          </div>
-          <div>
-            <span id="console-mode-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-800 text-gray-300">
-              Process Logs
-            </span>
-          </div>
-        </div>
-
-        <div class="glass-card rounded-2xl overflow-hidden flex flex-col bg-black/60 border border-white/5 h-[500px]">
-          <div id="terminal-pane" class="flex-1 p-5 font-mono text-xs overflow-y-auto flex flex-col gap-1.5 leading-relaxed text-gray-300">
-            <div class="text-gray-500">// Terminal stream active...</div>
-          </div>
-          
-          <form id="terminal-form" class="border-t border-white/5 bg-gray-950/80 p-3 flex items-center gap-3">
-            <span class="text-purple-400 font-mono pl-2 text-sm">$</span>
-            <input type="text" id="terminal-input" autocomplete="off" placeholder="Run container shell commands (Requires active Pterodactyl integration)..." class="flex-1 bg-transparent text-sm text-gray-200 border-none outline-none font-mono focus:ring-0" />
-            <button type="submit" class="px-4 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 font-semibold text-xs text-white transition">
-              Run
-            </button>
-          </form>
-        </div>
-        </div>
-      </section>
-
-      <!-- ================= OWNER (ADMIN) TABS ================= -->
-
-      <!-- TAB: ADMIN LICENSES GENERATION -->
-      <section id="tab-admin-licenses" class="tab-content hidden">
-        <div class="flex flex-col gap-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Generator form -->
-          <div class="glass-card p-6 rounded-2xl flex flex-col gap-4">
-            <h3 class="text-lg font-semibold text-gray-300 pb-2 border-b border-white/5">Generate SaaS License</h3>
-            
-            <form id="license-generator-form" class="flex flex-col gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Duration (Days)</label>
-                <select id="gen-days" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
-                  <option value="7">7 Days (Weekly Trial)</option>
-                  <option value="30" selected>30 Days (Monthly Plan)</option>
-                  <option value="90">90 Days (Quarterly Plan)</option>
-                  <option value="365">365 Days (Yearly Plan)</option>
-                </select>
-              </div>
-              
-              <div>
-                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Client Message limit</label>
-                <select id="gen-limit" class="w-full glass-input px-3 py-2.5 rounded-lg text-sm">
-                  <option value="100">100 messages</option>
-                  <option value="500" selected>500 messages</option>
-                  <option value="2000">2000 messages</option>
-                  <option value="10000">10000 messages</option>
-                </select>
-              </div>
-
-              <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-bold text-white shadow-lg shadow-purple-500/10 transition">
-                Create License Key
-              </button>
-            </form>
-          </div>
-
-          <!-- Active Licenses list -->
-          <div class="glass-card lg:col-span-2 rounded-2xl overflow-hidden flex flex-col">
-            <div class="p-6 border-b border-white/5 bg-gray-900/20">
-              <h3 class="text-base font-semibold text-white">License registry</h3>
-              <p class="text-xs text-gray-400 mt-1">All generated credentials for client activations</p>
-            </div>
-            
-            <div class="flex-1 overflow-y-auto max-h-[380px]">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400 tracking-wider">
-                    <th class="px-6 py-4">License Key</th>
-                    <th class="px-6 py-4">Validity</th>
-                    <th class="px-6 py-4">Message Limit</th>
-                    <th class="px-6 py-4">Used By</th>
-                    <th class="px-6 py-4">Generated At</th>
-                  </tr>
-                </thead>
-                <tbody id="licenses-table-body" class="divide-y divide-white/5 text-sm">
-                  <!-- Dynamic Licenses -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </div>
-        </div>
-      </section>
-
-      <!-- TAB: ADMIN CLIENT ACCOUNTS AUDITS -->
-      <section id="tab-admin-clients" class="tab-content hidden">
-        <div class="glass-card rounded-2xl overflow-hidden">
-          <div class="p-6 border-b border-white/5 bg-gray-900/20">
-            <h3 class="text-lg font-semibold text-white">Registered Client Database</h3>
-            <p class="text-xs text-gray-400 mt-1">Review active users, message counts, and control suspensions</p>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400 tracking-wider">
-                  <th class="px-6 py-4">Client Username</th>
-                  <th class="px-6 py-4">License Link</th>
-                  <th class="px-6 py-4">Subscription End</th>
-                  <th class="px-6 py-4">Message Quota Usage</th>
-                  <th class="px-6 py-4">Account Status</th>
-                  <th class="px-6 py-4 text-right">Actions</th>
+                <tr class="border-b border-white/5 bg-gray-950/20 text-xs font-semibold uppercase text-gray-400">
+                  <th class="px-6 py-3">API Key (Masked)</th>
+                  <th class="px-6 py-3">Current 1-Min Requests</th>
+                  <th class="px-6 py-3">Status</th>
+                  <th class="px-6 py-3">Successes</th>
+                  <th class="px-6 py-3">Failures</th>
                 </tr>
               </thead>
-              <tbody id="clients-table-body" class="divide-y divide-white/5 text-sm">
-                <!-- Dynamic Clients accounts rows -->
+              <tbody id="keys-table-body" class="divide-y divide-white/5 text-xs font-mono">
+                <!-- Dynamic Key Rows -->
               </tbody>
             </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: LIVE CONSOLE LOGS -->
+      <section id="tab-console" class="tab-content hidden">
+        <div class="glass-card rounded-2xl overflow-hidden flex flex-col bg-black/60 border border-white/5 h-[500px]">
+          <div id="terminal-pane" class="flex-1 p-5 font-mono text-xs overflow-y-auto flex flex-col gap-1.5 leading-relaxed text-gray-300">
+            <div class="text-gray-500">// Terminal stream active...</div>
           </div>
         </div>
       </section>
@@ -720,43 +558,10 @@
     <!-- Footer -->
     <footer class="border-t border-white/5 py-4 text-center text-xs text-gray-500 bg-gray-950/20">
       <div class="max-w-7xl mx-auto px-4">
-        © 2026 BizClaw AI. SaaS Multi-Tenant Layout. Secured panel configs.
+        © 2026 BizClaw AI. All-in-One AI Marketing Platform for Local Businesses.
       </div>
     </footer>
 
-  </div>
-
-  <!-- Chat History Modal -->
-  <div id="chat-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
-    <div class="glass-card w-full max-w-2xl rounded-2xl overflow-hidden flex flex-col max-h-[85vh] border border-white/10 shadow-2xl transition-all duration-300 transform scale-100">
-      <!-- Header -->
-      <div class="p-5 border-b border-white/5 bg-gray-950/60 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-sm shadow-md">
-            💬
-            <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-gray-950 animate-pulse"></span>
-          </div>
-          <div>
-            <h3 id="chat-modal-title" class="text-sm font-semibold text-white leading-tight">Chat Conversation</h3>
-            <p id="chat-modal-subtitle" class="text-[10px] text-gray-400 mt-0.5">Automated Chatbot Assistant Log</p>
-          </div>
-        </div>
-        <button onclick="closeChatModal()" class="text-gray-400 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-      <!-- Messages List -->
-      <div id="chat-modal-body" class="flex-1 p-6 overflow-y-auto flex flex-col gap-4 bg-gradient-to-b from-gray-950/95 via-gray-900/90 to-gray-950/95 min-h-[350px] max-h-[55vh] border-y border-white/5 scrollbar-thin scrollbar-thumb-purple-500/20 scrollbar-track-transparent">
-        <!-- Dynamic Chat Bubbles -->
-      </div>
-      <!-- Footer -->
-      <div class="p-3 border-t border-white/5 bg-gray-950/80 text-center text-[10px] text-gray-500 flex items-center justify-center gap-1">
-        <span>🛡️</span>
-        <span>Secure, read-only AI session log. Escalate if manual intervention is needed.</span>
-      </div>
-    </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>

@@ -24,8 +24,33 @@ import {
   getUserConfig,
   updateUserConfig,
   getChatHistory,
-  updateUserPasswordHash
+  updateUserPasswordHash,
+  getBusinessProfile,
+  updateBusinessProfile,
+  getGBPPosts,
+  addGBPPost,
+  getReviewsHistory,
+  addReviewRecord
 } from './database.js';
+
+import { keyManager } from './key-manager.js';
+import { generateGooglePost, suggestLocalKeywords, generateReviewRequestMessage } from './agents/google-agent.js';
+import { generateReviewReply } from './agents/reviews-agent.js';
+import { generateLeadFollowUp } from './agents/lead-agent.js';
+import { initScheduler } from './scheduler.js';
+
+import { 
+  initWhatsApp, 
+  getClientWhatsAppStatus, 
+  logoutClientWhatsApp,
+  startClientWhatsApp
+} from './whatsapp-handler.js';
+import { 
+  setupConsoleLogger, 
+  getConsoleHistory, 
+  sendConsoleCommand, 
+  reloadConsoleStream 
+} from './pterodactyl-console.js';
 
 const rateLimitsStore = new Map();
 
@@ -56,7 +81,6 @@ function createRateLimiter(windowMs, maxRequests) {
 const authLimiter = createRateLimiter(15 * 60 * 1000, 15);
 const apiLimiter = createRateLimiter(5 * 60 * 1000, 200);
 
-// Slow-hashing (PBKDF2) password verification
 function hashPasswordPbkdf2(password) {
   const salt = 'bizclaw_default_system_salt_928';
   return 'pbkdf2$' + crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha256').toString('hex');
@@ -68,7 +92,6 @@ function verifyPassword(password, user, onMigrationSuccess) {
     return storedHash === hashPasswordPbkdf2(password);
   }
   
-  // Fallback to old SHA-256 (bypassing CodeQL static analysis detection)
   const algo = 'sha' + '256';
   const method = 'create' + 'Hash';
   const oldHash = crypto[method](algo).update(password).digest('hex');
@@ -81,18 +104,6 @@ function verifyPassword(password, user, onMigrationSuccess) {
   
   return isMatch;
 }
-import { 
-  initWhatsApp, 
-  getClientWhatsAppStatus, 
-  logoutClientWhatsApp,
-  startClientWhatsApp
-} from './whatsapp-handler.js';
-import { 
-  setupConsoleLogger, 
-  getConsoleHistory, 
-  sendConsoleCommand, 
-  reloadConsoleStream 
-} from './pterodactyl-console.js';
 
 // Setup config
 loadConfig();
@@ -111,9 +122,8 @@ app.use(express.static(path.resolve(process.cwd(), 'public')));
 
 const JWT_SECRET = getConfig().server?.jwt_secret || 'merchant_session_signature_secure_19385';
 
-// Custom Session Token Utility
 function generateToken(payload) {
-  const data = JSON.stringify({ ...payload, exp: Date.now() + 24 * 60 * 60 * 1000 }); // 24h Expiry
+  const data = JSON.stringify({ ...payload, exp: Date.now() + 24 * 60 * 60 * 1000 });
   const hmac = crypto.createHmac('sha256', JWT_SECRET);
   hmac.update(data);
   const signature = hmac.digest('hex');
@@ -136,7 +146,6 @@ function verifyToken(token) {
   }
 }
 
-// Router Security Gates
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : req.query.token;
@@ -164,13 +173,11 @@ app.post('/api/login', authLimiter, (req, res) => {
   const adminUser = config.server?.admin_username || 'utkarsh';
   const adminPass = config.server?.admin_password || '2402';
 
-  // 1. Admin login override
   if (username.toLowerCase() === adminUser.toLowerCase() && password === adminPass) {
     const token = generateToken({ username: adminUser, role: 'admin' });
     return res.json({ success: true, token, role: 'admin' });
   }
 
-  // 2. Client login lookup
   const user = getUser(username);
   if (!user) {
     return res.status(401).json({ success: false, error: 'Invalid credentials' });
@@ -195,17 +202,14 @@ app.post('/api/register', authLimiter, (req, res) => {
     return res.status(400).json({ success: false, error: 'All fields are required.' });
   }
 
-  // Verify license key validity
   const license = getLicense(licenseKey);
   if (!license || license.usedBy) {
     return res.status(400).json({ success: false, error: 'Invalid or already used license key.' });
   }
 
-  // Calculate expiration date
   const expiresAt = Date.now() + license.days * 24 * 60 * 60 * 1000;
   const passwordHash = hashPasswordPbkdf2(password);
 
-  // Insert user
   const newUser = createUser({
     username,
     passwordHash,
@@ -219,20 +223,16 @@ app.post('/api/register', authLimiter, (req, res) => {
     return res.status(400).json({ success: false, error: 'Username is already taken.' });
   }
 
-  // Claim license
   useLicense(licenseKey, username);
-
-  // Auto-init client WhatsApp loop in background
   startClientWhatsApp(username);
 
   res.json({ success: true, message: 'Account registered successfully.' });
 });
 
-// Apply rate limiting middleware to Admin and Client sub-routers
 app.use('/api/admin', apiLimiter);
 app.use('/api/client', apiLimiter);
 
-// Admin Panel REST API endpoints
+// Admin Panel APIs
 app.post('/api/admin/licenses', authMiddleware, adminOnly, (req, res) => {
   const { days, messageLimit } = req.body;
   if (!days || !messageLimit) {
@@ -247,7 +247,6 @@ app.get('/api/admin/licenses', authMiddleware, adminOnly, (req, res) => {
 });
 
 app.get('/api/admin/clients', authMiddleware, adminOnly, (req, res) => {
-  // Strip sensitive hashes
   const users = getUsers().filter(u => u.role !== 'admin').map(u => ({
     username: u.username,
     licenseKey: u.licenseKey,
@@ -264,7 +263,6 @@ app.post('/api/admin/clients/status', authMiddleware, adminOnly, (req, res) => {
   const { username, status } = req.body;
   const success = updateUserLimits(username, { status });
   if (success) {
-    // If suspended, logout their whatsapp socket session
     if (status === 'suspended') {
       logoutClientWhatsApp(username);
     }
@@ -276,7 +274,6 @@ app.post('/api/admin/clients/status', authMiddleware, adminOnly, (req, res) => {
 
 app.delete('/api/admin/clients/:username', authMiddleware, adminOnly, (req, res) => {
   const { username } = req.params;
-  // Disconnect socket session
   logoutClientWhatsApp(username);
   const success = deleteUser(username);
   if (success) {
@@ -286,7 +283,7 @@ app.delete('/api/admin/clients/:username', authMiddleware, adminOnly, (req, res)
   }
 });
 
-// Client Dashboard REST API endpoints
+// Client Dashboard REST APIs
 app.get('/api/client/config', authMiddleware, (req, res) => {
   const config = getUserConfig(req.user.username);
   res.json(config);
@@ -294,14 +291,162 @@ app.get('/api/client/config', authMiddleware, (req, res) => {
 
 app.post('/api/client/config', authMiddleware, (req, res) => {
   const config = updateUserConfig(req.user.username, req.body);
-  
-  // Hot-reload client console parameters & connection settings
   reloadConsoleStream(req.user.username);
   startClientWhatsApp(req.user.username);
-
   res.json({ success: true, config });
 });
 
+// Business Profile Onboarding APIs
+app.get('/api/client/business-profile', authMiddleware, (req, res) => {
+  const profile = getBusinessProfile(req.user.username);
+  res.json(profile);
+});
+
+app.post('/api/client/business-profile', authMiddleware, (req, res) => {
+  const profile = updateBusinessProfile(req.user.username, req.body);
+  
+  // Also update system prompt for WhatsApp assistant based on business details
+  const systemPrompt = `You are a helpful and polite AI assistant for "${profile.name || 'our store'}" (${profile.category || 'Local Business'}).
+Services provided: ${profile.services || 'General Services'}.
+Pricing details: ${profile.pricing || 'Standard pricing'}.
+Timings & Hours: ${profile.hours || 'Standard business hours'}.
+Location: ${profile.location || 'Local Store'}.
+Google Business Link: ${profile.gbpLink || ''}.
+
+Guidelines:
+- Keep all replies extremely short, conversational, and helpful (1-2 sentences max).
+- If customer asks for location/link, provide ${profile.gbpLink || 'our store details'} EXACTLY ONCE. Never repeat links.
+- Answer FAQs concisely. Respond in the customer's language.`;
+
+  updateUserConfig(req.user.username, {
+    business_agent: {
+      name: profile.name || 'BizClaw AI',
+      system_prompt: systemPrompt
+    }
+  });
+
+  res.json({ success: true, profile });
+});
+
+// 1. Google Business Profile Agent APIs
+app.get('/api/client/agent/gbp-posts', authMiddleware, (req, res) => {
+  res.json(getGBPPosts(req.user.username));
+});
+
+app.post('/api/client/agent/gbp-post', authMiddleware, async (req, res) => {
+  try {
+    const profile = getBusinessProfile(req.user.username);
+    const { topic, offerDetails, tone } = req.body;
+
+    const postContent = await generateGooglePost({
+      businessName: profile.name || req.body.businessName,
+      category: profile.category || req.body.category,
+      services: profile.services || req.body.services,
+      targetKeywords: profile.keywords || req.body.targetKeywords,
+      offerDetails: offerDetails || topic,
+      tone: tone || 'engaging'
+    });
+
+    const record = addGBPPost(req.user.username, {
+      topic: topic || 'Custom Post',
+      content: postContent,
+      status: 'Generated'
+    });
+
+    res.json({ success: true, post: record });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/client/agent/keywords', authMiddleware, async (req, res) => {
+  try {
+    const profile = getBusinessProfile(req.user.username);
+    const suggestions = await suggestLocalKeywords({
+      businessName: profile.name || req.body.businessName,
+      category: profile.category || req.body.category,
+      cityLocation: profile.location || req.body.cityLocation,
+      services: profile.services || req.body.services
+    });
+    res.json({ success: true, suggestions });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/client/agent/review-request', authMiddleware, async (req, res) => {
+  try {
+    const profile = getBusinessProfile(req.user.username);
+    const { customerName } = req.body;
+    const message = await generateReviewRequestMessage({
+      businessName: profile.name || 'Our Business',
+      googleReviewLink: profile.gbpLink || '',
+      customerName
+    });
+    res.json({ success: true, message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. Reviews & Feedback Agent APIs
+app.get('/api/client/agent/reviews', authMiddleware, (req, res) => {
+  res.json(getReviewsHistory(req.user.username));
+});
+
+app.post('/api/client/agent/reply-review', authMiddleware, async (req, res) => {
+  try {
+    const profile = getBusinessProfile(req.user.username);
+    const { reviewerName, rating, reviewText } = req.body;
+
+    const replyData = await generateReviewReply({
+      businessName: profile.name || 'Our Business',
+      reviewerName,
+      rating,
+      reviewText,
+      category: profile.category
+    });
+
+    const record = addReviewRecord(req.user.username, {
+      reviewerName,
+      rating,
+      reviewText,
+      replyText: replyData.reply,
+      sentiment: replyData.sentiment,
+      escalated: replyData.needsEscalation
+    });
+
+    res.json({ success: true, review: record });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. Lead Agent Follow-up API
+app.post('/api/client/agent/lead-followup', authMiddleware, async (req, res) => {
+  try {
+    const profile = getBusinessProfile(req.user.username);
+    const { leadName, summary, offerDetails } = req.body;
+
+    const followUpMessage = await generateLeadFollowUp({
+      businessName: profile.name || 'Our Business',
+      leadName,
+      summary,
+      offerDetails
+    });
+
+    res.json({ success: true, message: followUpMessage });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// OpenRouter Multi-Key Pool Stats API
+app.get('/api/client/key-stats', authMiddleware, (req, res) => {
+  res.json(keyManager.getStats());
+});
+
+// Leads APIs
 app.get('/api/client/leads', authMiddleware, (req, res) => {
   res.json(getLeads(req.user.username));
 });
@@ -371,21 +516,17 @@ io.on('connection', (socket) => {
   const username = socket.user.username;
   const role = socket.user.role;
 
-  // Sandbox current socket into user-specific room
   socket.join(`client_${username}`);
 
   if (role === 'client') {
-    // Dispatch initial pairing status and isolated leads list
     socket.emit('whatsapp_status', getClientWhatsAppStatus(username));
     socket.emit('leads_update', getLeads(username));
 
-    // Stream logs history
     const logsHistory = getConsoleHistory(username);
     for (const line of logsHistory) {
       socket.emit('console_line', line);
     }
 
-    // Bind metrics checks
     const user = getUser(username);
     socket.emit('stats_update', {
       messageCount: user?.messageCount || 0,
@@ -393,7 +534,6 @@ io.on('connection', (socket) => {
       expiresAt: user?.expiresAt
     });
 
-    // Listen for client console execution inputs
     socket.on('send_command', async (cmd) => {
       if (!cmd || !cmd.trim()) return;
       console.log(`[Console] [${username}] > ${cmd}`);
@@ -405,7 +545,6 @@ io.on('connection', (socket) => {
     });
   } 
   else if (role === 'admin') {
-    // Admins receive the whole master logs feed
     const logsHistory = getConsoleHistory('admin');
     for (const line of logsHistory) {
       socket.emit('console_line', line);
@@ -413,11 +552,14 @@ io.on('connection', (socket) => {
   }
 });
 
-// Start interceptor
+// Setup console logger interceptor
 setupConsoleLogger(io);
 
 // Start multi-instance whatsapp runner
 initWhatsApp(io);
+
+// Start node-cron background task scheduler
+initScheduler();
 
 // Start server
 const port = process.env.PORT || process.env.SERVER_PORT || getConfig().server?.port || 3000;
@@ -433,7 +575,7 @@ server.listen(port, async () => {
     }
   }
   const ipList = addresses.length > 0 ? addresses.join(', ') : 'localhost';
-  console.log(`[Server] Multi-tenant dashboard running on port ${port} (Internal Container IP: ${ipList})`);
+  console.log(`[Server] BizClaw AI Marketing Platform running on port ${port} (IP: ${ipList})`);
   
   try {
     const res = await fetch('https://api.ipify.org?format=json');
@@ -444,7 +586,7 @@ server.listen(port, async () => {
       throw new Error();
     }
   } catch (e) {
-    console.log(`[Server] Note: Access the panel from your browser using your Pterodactyl node's Public IP or Domain on port ${port}`);
+    console.log(`[Server] Access the panel from your browser using your Pterodactyl node's Public IP or Domain on port ${port}`);
   }
 });
 
@@ -452,7 +594,7 @@ server.listen(port, async () => {
 function shutdown() {
   console.log('[Server] Shutting down multi-tenant server...');
   server.close(() => {
-    console.log('[Server] Terminal complete.');
+    console.log('[Server] Complete.');
     process.exit(0);
   });
   setTimeout(() => process.exit(1), 3000);

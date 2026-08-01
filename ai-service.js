@@ -1,141 +1,205 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import OpenAI from 'openai';
+import { keyManager } from './key-manager.js';
 import { getConfig } from './config-manager.js';
 import { getUserConfig } from './database.js';
 
-// Verify if client has custom key or if system has global fallback key in .env
-function getApiKey(provider, clientConfig, globalConfig) {
-  if (provider === 'gemini') {
-    return clientConfig.ai?.gemini_api_key || globalConfig.ai?.global_gemini_api_key || '';
+const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
+const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || process.env.AI_MODEL || 'nvidia/nemotron-3-super-120b-a12b:free';
+
+/**
+ * Clean AI Output Helper
+ * - Fixes link duplication issues (removes duplicate URLs in response)
+ * - Trims extra whitespace and formats clean output for WhatsApp
+ */
+export function cleanAIOutput(text) {
+  if (!text || typeof text !== 'string') return '';
+
+  let cleaned = text.trim();
+
+  // Deduplicate URLs in text
+  const urlRegex = /(https?:\/\/[^\s]+)/gi;
+  const urls = cleaned.match(urlRegex);
+
+  if (urls && urls.length > 1) {
+    const seenUrls = new Set();
+    cleaned = cleaned.replace(urlRegex, (match) => {
+      const normalized = match.toLowerCase().replace(/\/$/, '');
+      if (seenUrls.has(normalized)) {
+        return '';
+      }
+      seenUrls.add(normalized);
+      return match;
+    });
   }
-  if (provider === 'openai') {
-    return clientConfig.ai?.openai_api_key || globalConfig.ai?.global_openai_api_key || '';
-  }
-  return '';
+
+  // Clean up double spaces or dangling link artifacts
+  cleaned = cleaned
+    .replace(/  +/g, ' ')
+    .replace(/\(\s*\)/g, '')
+    .trim();
+
+  return cleaned;
 }
 
-function isApiKeyConfigured(provider, clientConfig, globalConfig) {
-  const key = getApiKey(provider, clientConfig, globalConfig);
-  if (!key || key.trim() === '') return false;
+/**
+ * Core OpenRouter API Request Engine with Multi-Key Failover
+ */
+export async function callOpenRouterAI({ messages, systemPrompt, temperature = 0.7, maxTokens = 1000, modelOverride = null }) {
+  const model = modelOverride || process.env.OPENROUTER_MODEL || DEFAULT_MODEL;
   
-  if (provider === 'gemini' && (key.includes('AIzaSy...') || key.trim() === '')) return false;
-  if (provider === 'openai' && (key.includes('sk-...') || key.trim() === '')) return false;
-  
-  return true;
+  // Format message payload
+  const fullMessages = [];
+  if (systemPrompt) {
+    fullMessages.push({ role: 'system', content: systemPrompt });
+  }
+
+  if (Array.isArray(messages)) {
+    for (const msg of messages) {
+      fullMessages.push({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      });
+    }
+  }
+
+  // Determine retry attempts based on key pool size
+  const keyStats = keyManager.getStats();
+  const maxAttempts = Math.max(1, keyStats.totalKeys);
+  let lastError = null;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let keyState = null;
+    try {
+      keyState = keyManager.getAvailableKey();
+    } catch (err) {
+      throw new Error(`OpenRouter Key Error: ${err.message}`);
+    }
+
+    try {
+      const response = await fetch(OPENROUTER_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${keyState.key}`,
+          'HTTP-Referer': 'https://bizclaw.ai',
+          'X-Title': 'BizClaw AI Marketing Platform',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: fullMessages,
+          temperature: temperature,
+          max_tokens: maxTokens
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        const statusCode = response.status;
+        keyManager.markFailure(keyState, statusCode, errorText);
+
+        lastError = new Error(`OpenRouter HTTP ${statusCode}: ${errorText}`);
+
+        // If rate limit (429) or server error, continue loop to try next key in pool
+        if (statusCode === 429 || statusCode >= 500) {
+          console.warn(`[AI Service] Retrying request with next available API key (Attempt ${attempt + 1}/${maxAttempts})...`);
+          continue;
+        } else {
+          // Unrecoverable error (e.g. invalid payload)
+          throw lastError;
+        }
+      }
+
+      const data = await response.json();
+      keyManager.markSuccess(keyState);
+
+      const replyContent = data.choices?.[0]?.message?.content || '';
+      return cleanAIOutput(replyContent);
+
+    } catch (err) {
+      lastError = err;
+      if (keyState) {
+        keyManager.markFailure(keyState, 500, err.message);
+      }
+      console.warn(`[AI Service] Exception on key ${keyState?.maskedKey}: ${err.message}. Retrying...`);
+    }
+  }
+
+  console.error('[AI Service] All OpenRouter API keys failed or exhausted.');
+  throw lastError || new Error('All OpenRouter API keys failed.');
 }
 
-// Generate chatbot responses for a specific client tenant
+/**
+ * Generate Customer WhatsApp Chat Reply
+ */
 export async function generateChatReply(username, phone, messageText, history) {
-  const globalConfig = getConfig();
-  const clientConfig = getUserConfig(username);
+  const clientConfig = getUserConfig(username) || {};
 
-  const provider = clientConfig.ai?.provider || 'gemini';
-  const systemPrompt = clientConfig.business_agent?.system_prompt || 'You are a helpful business assistant.';
+  const businessAgent = clientConfig.business_agent || {};
+  const businessName = businessAgent.name || 'BizClaw AI Assistant';
+  
+  // Custom or default concise system prompt
+  const defaultPrompt = `You are ${businessName}, a friendly and helpful AI assistant for a local small business. 
+Answer customer questions accurately, politely, and extremely concisely (1-2 sentences maximum). 
+Never output long paragraphs or bullet lists. 
+If a user asks for a website link or location, provide the exact link ONLY ONCE. Never duplicate links or text. 
+Respond in the same language as the user (English, Hindi, or Hinglish).`;
+
+  const systemPrompt = businessAgent.system_prompt || defaultPrompt;
   const temperature = clientConfig.ai?.temperature ?? 0.7;
+  const modelName = clientConfig.ai?.model || DEFAULT_MODEL;
 
-  if (!isApiKeyConfigured(provider, clientConfig, globalConfig)) {
-    console.warn('[AI Service] Warning: API key for "%s" (Client: %s) is not configured globally or locally.', provider, username);
-    return `Hello! This is ${clientConfig.business_agent?.name || 'Assistant'}. We are currently updating our automated customer service system. A human representative will get back to you shortly!`;
-  }
-
-  const apiKey = getApiKey(provider, clientConfig, globalConfig);
+  const messagesPayload = [
+    ...history.slice(-10).map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'assistant',
+      content: msg.content
+    })),
+    { role: 'user', content: messageText }
+  ];
 
   try {
-    if (provider === 'gemini') {
-      const modelName = clientConfig.ai?.gemini_model || 'gemini-2.5-flash';
-      
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: modelName,
-        systemInstruction: systemPrompt 
-      });
+    const rawReply = await callOpenRouterAI({
+      messages: messagesPayload,
+      systemPrompt,
+      temperature,
+      maxTokens: 300,
+      modelOverride: modelName
+    });
 
-      const contents = history.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
-      }));
-      contents.push({ role: 'user', parts: [{ text: messageText }] });
-
-      const result = await model.generateContent({
-        contents,
-        generationConfig: { temperature }
-      });
-
-      return result.response.text().trim();
-    } else {
-      const modelName = clientConfig.ai?.openai_model || 'gpt-4o-mini';
-      const openai = new OpenAI({ apiKey });
-      
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        ...history.map(msg => ({
-          role: msg.role === 'user' ? 'user' : 'assistant',
-          content: msg.content
-        })),
-        { role: 'user', content: messageText }
-      ];
-
-      const completion = await openai.chat.completions.create({
-        model: modelName,
-        messages,
-        temperature
-      });
-
-      return completion.choices[0].message.content.trim();
-    }
+    return cleanAIOutput(rawReply);
   } catch (error) {
-    console.error('[AI Service] Error generating response for user "%s" from provider "%s": %s', username, provider, error.message || error);
-    return `I apologize for the delay. We are experiencing high volume at the moment, but we have received your message and will respond as soon as possible.`;
+    console.error(`[AI Service] Chat reply generation failed for user "${username}":`, error.message);
+    return `Hello! Thank you for contacting ${businessName}. We have received your message and will respond shortly!`;
   }
 }
 
-// Dynamically extract CRM lead interests for a specific client tenant
+/**
+ * Extract CRM Lead Info from Chat History
+ */
 export async function extractLeadInfo(username, phone, name, history) {
-  const globalConfig = getConfig();
-  const clientConfig = getUserConfig(username);
-  const provider = clientConfig.ai?.provider || 'gemini';
+  const formattedHistory = history
+    .slice(-10)
+    .map(msg => `${msg.role === 'user' ? 'Customer' : 'Assistant'}: ${msg.content}`)
+    .join('\n');
 
-  if (!isApiKeyConfigured(provider, clientConfig, globalConfig)) {
-    return 'Inquired about store services';
-  }
-
-  const apiKey = getApiKey(provider, clientConfig, globalConfig);
-  const formattedHistory = history.map(msg => `${msg.role === 'user' ? 'Customer' : 'AI Assistant'}: ${msg.content}`).join('\n');
-  
-  const extractionPrompt = `
-You are a CRM parser. Analyze the conversation history with this customer (profile name: "${name}", phone: "${phone}").
-Identify if they are expressing a clear inquiry, ordering products, booking appointments, or asking FAQs. Summarize their core request or interest in a short, single-line, professional sentence (maximum 15 words).
-If they are only starting the conversation, summarize as "Initial contact / Greeting".
+  const extractionPrompt = `You are an AI CRM parser. Analyze the conversation with customer "${name}" (Phone: "${phone}").
+Summarize their core request, product interest, or service booking in a single, short sentence (maximum 12 words).
+If they are only greeting, output "Initial Greeting".
 
 Conversation History:
 ${formattedHistory}
 
-Reply ONLY with the single summary sentence. Do not include markdown, greetings, prefix titles, or notes.
-`;
+Reply ONLY with the single line summary. Do not include markdown, prefix titles, or quotes.`;
 
   try {
-    if (provider === 'gemini') {
-      const modelName = clientConfig.ai?.gemini_model || 'gemini-2.5-flash';
-      
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: modelName });
-      
-      const result = await model.generateContent(extractionPrompt);
-      return result.response.text().trim().replace(/['"“”]/g, '');
-    } else {
-      const modelName = clientConfig.ai?.openai_model || 'gpt-4o-mini';
-      const openai = new OpenAI({ apiKey });
-      
-      const completion = await openai.chat.completions.create({
-        model: modelName,
-        messages: [{ role: 'user', content: extractionPrompt }],
-        temperature: 0.3
-      });
+    const rawSummary = await callOpenRouterAI({
+      messages: [{ role: 'user', content: extractionPrompt }],
+      systemPrompt: 'You are a precise data extractor. Reply only with the requested summary line.',
+      temperature: 0.3,
+      maxTokens: 60
+    });
 
-      return completion.choices[0].message.content.trim().replace(/['"“”]/g, '');
-    }
+    return rawSummary.replace(/['"“”]/g, '').trim() || 'Inquired about store services';
   } catch (error) {
-    console.error('[AI Service] Lead extraction failed for client "%s": %s', username, error.message || error);
+    console.error(`[AI Service] Lead extraction failed for user "${username}":`, error.message);
     return 'Inquired about store services';
   }
 }

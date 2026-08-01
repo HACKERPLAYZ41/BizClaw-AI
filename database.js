@@ -4,12 +4,15 @@ import path from 'path';
 const DB_PATH = path.resolve(process.cwd(), 'database.json');
 
 const DEFAULT_DB = {
-  users: [],       // Registered clients: { username, passwordHash, role, licenseKey, createdAt, expiresAt, messageLimit, messageCount, status }
-  licenses: [],    // Owner-generated keys: { key, days, messageLimit, usedBy, createdAt }
-  configs: {},     // Client configs: { username: { ai: {...}, business_agent: {...}, pterodactyl: {...} } }
-  leads: {},       // Client leads: { username: [ { phone, name, summary, status, timestamp } ] }
-  chatHistory: {}, // Message histories: { username: { phone: [ { role, content, timestamp } ] } }
-  escalations: {}  // Urgent status locks: { username: { phone: { phone, escalatedAt, expiresAt } } }
+  users: [],             // Registered clients
+  licenses: [],          // License keys
+  configs: {},           // Client configs
+  businessProfiles: {},  // Business onboarding info: { username: { name, category, services, pricing, hours, location, phone, gbpLink, keywords } }
+  gbpPosts: {},          // AI-generated Google posts: { username: [ { id, topic, content, createdAt, status } ] }
+  reviewsHistory: {},    // Review logs: { username: [ { id, reviewerName, rating, reviewText, replyText, sentiment, escalated, createdAt } ] }
+  leads: {},             // Client leads
+  chatHistory: {},       // Message histories
+  escalations: {}        // Support locks
 };
 
 function isSafeKey(key) {
@@ -31,7 +34,7 @@ function readDb() {
     const rawData = fs.readFileSync(DB_PATH, 'utf8');
     dbCache = JSON.parse(rawData);
     
-    // Ensure all top-level keys exist (migrations)
+    // Migration: Ensure all keys exist
     for (const key of Object.keys(DEFAULT_DB)) {
       if (dbCache[key] === undefined) {
         dbCache[key] = JSON.parse(JSON.stringify(DEFAULT_DB[key]));
@@ -59,31 +62,15 @@ function writeDb(data) {
 // Default client configuration template
 const DEFAULT_CLIENT_CONFIG = {
   ai: {
-    provider: 'gemini',
-    gemini_api_key: '',
-    gemini_model: 'gemini-2.5-flash',
-    openai_api_key: '',
-    openai_model: 'gpt-4o-mini',
-    temperature: 0.7,
-    max_history_tokens: 1500
+    provider: 'openrouter',
+    model: 'nvidia/nemotron-3-super-120b-a12b:free',
+    temperature: 0.7
   },
   business_agent: {
     name: 'BizClaw AI',
-    system_prompt: 'You are a helpful customer support agent for our store. Answer FAQs politely, naturally, and extremely concisely (1-2 sentences maximum per message). Avoid long paragraphs, bullet lists, or asking multiple questions at once. Keep responses short and conversational for WhatsApp chats. Automatically detect the user\'s language and respond in that same language or in Hinglish (Romanized Hindi) if appropriate.',
+    system_prompt: '',
     auto_lead_capture: true,
-    escalation_keywords: ['human', 'manager', 'complaint', 'refund', 'support']
-  },
-  pterodactyl: {
-    panel_url: '',
-    client_api_key: '',
-    server_id: ''
-  },
-  twilio: {
-    enabled: false,
-    account_sid: '',
-    auth_token: '',
-    twilio_number: '',
-    owner_number: ''
+    escalation_keywords: ['human', 'manager', 'complaint', 'refund', 'support', 'owner']
   }
 };
 
@@ -152,8 +139,10 @@ export function deleteUser(username) {
   db.users = db.users.filter(u => u.username.toLowerCase() !== username.toLowerCase());
   
   if (db.users.length !== initialLength) {
-    // Cleanup related configs, leads, history, escalations
     delete db.configs[username];
+    delete db.businessProfiles[username];
+    delete db.gbpPosts[username];
+    delete db.reviewsHistory[username];
     delete db.leads[username];
     delete db.chatHistory[username];
     delete db.escalations[username];
@@ -163,7 +152,7 @@ export function deleteUser(username) {
   return false;
 }
 
-// --- License Management (Owner Panel) ---
+// --- License Management ---
 
 export function getLicenses() {
   const db = readDb();
@@ -172,8 +161,6 @@ export function getLicenses() {
 
 export function generateLicense({ days, messageLimit }) {
   const db = readDb();
-  
-  // Format key like: ABCD-EFGH-IJKL
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   const genSeg = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   const key = `${genSeg()}-${genSeg()}-${genSeg()}`;
@@ -208,13 +195,12 @@ export function useLicense(key, username) {
   return null;
 }
 
-// --- Config Management ---
+// --- Config & Business Profile Management ---
 
 export function getUserConfig(username) {
   if (!isSafeKey(username)) return null;
   const db = readDb();
   if (!db.configs[username]) {
-    // Shallow copy defaults
     db.configs[username] = JSON.parse(JSON.stringify(DEFAULT_CLIENT_CONFIG));
     writeDb(db);
   }
@@ -228,7 +214,6 @@ export function updateUserConfig(username, newConfig) {
     db.configs[username] = JSON.parse(JSON.stringify(DEFAULT_CLIENT_CONFIG));
   }
 
-  // Deep merge
   for (const key of Object.keys(newConfig)) {
     if (!isSafeKey(key)) continue;
     if (typeof newConfig[key] === 'object' && newConfig[key] !== null && db.configs[username][key]) {
@@ -243,6 +228,98 @@ export function updateUserConfig(username, newConfig) {
 
   writeDb(db);
   return db.configs[username];
+}
+
+export function getBusinessProfile(username) {
+  if (!isSafeKey(username)) return null;
+  const db = readDb();
+  return db.businessProfiles[username] || {
+    name: '',
+    category: '',
+    services: '',
+    pricing: '',
+    hours: '',
+    location: '',
+    phone: '',
+    gbpLink: '',
+    keywords: ''
+  };
+}
+
+export function updateBusinessProfile(username, data) {
+  if (!isSafeKey(username)) return null;
+  const db = readDb();
+  db.businessProfiles[username] = {
+    ...(db.businessProfiles[username] || {}),
+    ...data,
+    updatedAt: new Date().toISOString()
+  };
+  writeDb(db);
+  return db.businessProfiles[username];
+}
+
+// --- GBP Posts History ---
+
+export function getGBPPosts(username) {
+  if (!isSafeKey(username)) return [];
+  const db = readDb();
+  return db.gbpPosts[username] || [];
+}
+
+export function addGBPPost(username, postData) {
+  if (!isSafeKey(username)) return null;
+  const db = readDb();
+  if (!db.gbpPosts[username]) db.gbpPosts[username] = [];
+
+  const record = {
+    id: 'gbp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    topic: postData.topic || 'Google Post',
+    content: postData.content,
+    createdAt: new Date().toISOString(),
+    status: postData.status || 'Draft'
+  };
+
+  db.gbpPosts[username].unshift(record);
+  // Keep last 50 posts
+  if (db.gbpPosts[username].length > 50) {
+    db.gbpPosts[username] = db.gbpPosts[username].slice(0, 50);
+  }
+
+  writeDb(db);
+  return record;
+}
+
+// --- Reviews History ---
+
+export function getReviewsHistory(username) {
+  if (!isSafeKey(username)) return [];
+  const db = readDb();
+  return db.reviewsHistory[username] || [];
+}
+
+export function addReviewRecord(username, reviewData) {
+  if (!isSafeKey(username)) return null;
+  const db = readDb();
+  if (!db.reviewsHistory[username]) db.reviewsHistory[username] = [];
+
+  const record = {
+    id: 'rev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    reviewerName: reviewData.reviewerName || 'Customer',
+    rating: reviewData.rating || 5,
+    reviewText: reviewData.reviewText || '',
+    replyText: reviewData.replyText || '',
+    sentiment: reviewData.sentiment || 'Positive',
+    escalated: reviewData.escalated || false,
+    createdAt: new Date().toISOString()
+  };
+
+  db.reviewsHistory[username].unshift(record);
+  if (db.reviewsHistory[username].length > 50) {
+    db.reviewsHistory[username] = db.reviewsHistory[username].slice(0, 50);
+  }
+
+  writeDb(db);
+  return record;
 }
 
 // --- Leads Management ---
@@ -371,10 +448,7 @@ export function escalate(username, phone, durationMs = 3600000) {
   };
   
   writeDb(db);
-  
-  // Set lead status to Urgent
   addLead(username, { phone, status: 'Urgent' });
-  
   return db.escalations[username][phone];
 }
 

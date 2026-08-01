@@ -8,7 +8,7 @@ import makeWASocket, {
 import pino from 'pino';
 import QRCode from 'qrcode';
 import { getConfig } from './config-manager.js';
-import { generateChatReply, extractLeadInfo } from './ai-service.js';
+import { generateChatReply, extractLeadInfo, cleanAIOutput } from './ai-service.js';
 import { triggerTwilioAlert } from './twilio-service.js';
 import { 
   addChatMessage, 
@@ -276,12 +276,13 @@ async function handleClientIncomingMessage(username, phone, pushName, text, remo
 
   // Generate reply
   const reply = await generateChatReply(username, phone, text, history);
+  const cleanedReply = cleanAIOutput(reply);
 
   // Send message
-  await sock.sendMessage(remoteJid, { text: reply });
+  await sock.sendMessage(remoteJid, { text: cleanedReply });
 
   // Save AI response
-  addChatMessage(username, phone, 'assistant', reply);
+  addChatMessage(username, phone, 'assistant', cleanedReply);
 
   // Extract CRM lead updates
   if (clientConfig.business_agent?.auto_lead_capture) {
